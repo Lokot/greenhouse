@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+
+	<persistence-unit name="greenhouse-pu" > <!-- transaction-type="RESOURCE_LOCAL" -->
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>greenHouseDataSource</jta-data-source>
+		
+		<class>ru.skysoftlab.greenhouse.jpa.entitys.Readout</class>
+		<class>ru.skysoftlab.greenhouse.jpa.entitys.DateConfig</class>
+		<!-- Свойства. -->
+		<class>ru.skysoftlab.skylibs.entitys.properties.JpaProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.BooleanProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.DateProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.DoubleProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.IntegerProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.LongProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.StringProperty</class>
+		<class>ru.skysoftlab.skylibs.entitys.properties.FloatProperty</class>
+		
+		<properties>
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+			<property name="hibernate.show_sql" value="false" />
+			<property name="hibernate.format_sql" value="true" />
+			<property name="current_session_context_class" value="thread" />
+		</properties>
+	</persistence-unit>
+</persistence>

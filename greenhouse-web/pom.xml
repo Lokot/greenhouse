@@ -1,0 +1,193 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ru.skysoftlab.greenhouse</groupId>
+	<artifactId>greenhouse-web</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<vaadin.version>7.6.3</vaadin.version>
+		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+	</properties>
+
+	<!-- Профили сборки. -->
+	<profiles>
+		<!-- Профиль для TomEE версии. -->
+		<profile>
+			<id>tomee</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<!-- <dependencies> -->
+			<!-- <dependency> -->
+			<!-- <groupId>org.apache.geronimo.components</groupId> -->
+			<!-- <artifactId>geronimo-connector</artifactId> -->
+			<!-- <version>3.1.4</version> -->
+			<!-- </dependency> -->
+			<!-- </dependencies> -->
+			<build>
+				<plugins>
+					<!-- Для TomEE убираем валидатор. -->
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>2.3</version>
+						<configuration>
+							<!-- For TomEE -->
+							<packagingExcludes>
+								WEB-INF/lib/hibernate-validator-*.jar,
+								WEB-INF/lib/validation-api-*.jar
+								<!-- , -->
+								<!-- WEB-INF/lib/vaadin-cronGen*.jar -->
+							</packagingExcludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- Профиль для Jboss версии. -->
+		<profile>
+			<id>jboss</id>
+		</profile>
+		<!-- Build Widgetsets -->
+		<profile>
+			<id>buildVaadin</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						<version>2.4.1</version>
+						<configuration>
+							<filesets>
+								<fileset>
+									<directory>src/main/webapp/VAADIN/widgetsets</directory>
+								</fileset>
+							</filesets>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>com.vaadin</groupId>
+						<artifactId>vaadin-maven-plugin</artifactId>
+						<version>${vaadin.plugin.version}</version>
+						<configuration>
+							<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+							<webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets</webappDirectory>
+							<hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets</hostedWebapp>
+							<persistentunitcachedir>${project.build.directory}</persistentunitcachedir>
+							<deploy>${project.build.directory}/gwt-deploy</deploy>
+							<compileReport>false</compileReport>
+							<noServer>true</noServer>
+							<!-- Remove draftCompile when project is ready -->
+							<draftCompile>false</draftCompile>
+							<style>OBF</style>
+							<strict>true</strict>
+							<runTarget>http://localhost:8080/</runTarget>
+						</configuration>
+						<executions>
+							<execution>
+								<configuration>
+									<!-- if you don't specify any modules, the plugin will find them -->
+									<!-- <modules> <module>com.vaadin.demo.mobilemail.gwt.ColorPickerWidgetSet</module> 
+										</modules> -->
+								</configuration>
+								<goals>
+									<goal>clean</goal>
+									<goal>resources</goal>
+									<goal>update-theme</goal>
+									<goal>update-widgetset</goal>
+									<goal>compile-theme</goal>
+									<goal>compile</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.openejb.maven</groupId>
+				<artifactId>tomee-maven-plugin</artifactId>
+				<version>1.7.1</version>
+				<configuration>
+					<url>http://localhost:8080/manager/text</url>
+					<server>TomcatServer</server>
+					<path>/smart-home</path>
+					<!-- <systemVariables> -->
+					<!-- <java.security.auth.login.config>${project.build.directory}/tomee/conf/login.config</java.security.auth.login.config> -->
+					<!-- </systemVariables> -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>ru.skysoftlab.skylibs</groupId>
+			<artifactId>skylibs-vaadin-web</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>ru.skysoftlab</groupId>
+			<artifactId>jarduino-dht22</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.fasterxml.jackson.core</groupId> -->
+<!-- 			<artifactId>jackson-databind</artifactId> -->
+<!-- 			<version>2.9.0.pr3</version> -->
+<!-- 		</dependency> -->
+		<dependency>
+			<groupId>org.scream3r</groupId>
+			<artifactId>jssc</artifactId>
+			<version>2.8.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+			<version>2.0-EDR1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openejb.shade</groupId>
+			<artifactId>quartz-openejb-shade</artifactId>
+			<version>2.2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.ejb</groupId>
+			<artifactId>javax.ejb-api</artifactId>
+			<version>3.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.0-b05</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

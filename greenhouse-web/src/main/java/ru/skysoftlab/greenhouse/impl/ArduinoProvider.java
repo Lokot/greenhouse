@@ -1,0 +1,297 @@
+package ru.skysoftlab.greenhouse.impl;
+
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.HIGH;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.INPUT;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.LOW;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.OUTPUT;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.closeSignal;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.dhtPin;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.illumPin;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.openSignal;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.state30;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.state60;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.stateClose;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.stateOpen;
+import static ru.skysoftlab.greenhouse.common.ArduinoPins.stopSignal;
+import static ru.skysoftlab.greenhouse.common.GableState.Close;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SERIAL_PORT;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.sintef.jarduino.DigitalState;
+import org.sintef.jarduino.InvalidPinTypeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ru.skysoftlab.greenhouse.common.GableMoveEvent;
+import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.greenhouse.common.GableStateListener;
+import ru.skysoftlab.jarduino.sensors.Dht22Params;
+import ru.skysoftlab.jarduino.sensors.Sensor;
+import ru.skysoftlab.skylibs.annatations.AppProperty;
+import ru.skysoftlab.skylibs.events.ConfigurationListener;
+import ru.skysoftlab.skylibs.events.SystemConfigEvent;
+
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+
+@Singleton
+// @Startup
+public class ArduinoProvider implements IArduino, ConfigurationListener,
+		GableStateListener {
+
+	private static final long serialVersionUID = -3174953105876049988L;
+
+	private Logger LOG = LoggerFactory.getLogger(ArduinoProvider.class);
+
+	@Inject
+	@AppProperty(SERIAL_PORT)
+	private String portName;
+
+	@Inject
+	private javax.enterprise.event.Event<GableMoveEvent> gableMoveEvent;
+
+	private GableState gbState;
+	private GableState newGbState;
+
+	private GrenHouseArduino arduino;
+
+	@PostConstruct
+	private void init() {
+		// TODO изменить
+		System.setProperty("os.name", "Win32");
+		try {
+			arduino = new GrenHouseArduino(portName, this);
+			// arduino.pinMode(illumPin, INPUT);
+			// arduino.pinMode(stateOpen, INPUT);
+			// arduino.pinMode(state60, INPUT);
+			// arduino.pinMode(state30, INPUT);
+			// arduino.pinMode(stateClose, INPUT);
+			// arduino.pinMode(openSignal, OUTPUT);
+			// arduino.pinMode(stopSignal, OUTPUT);
+			// arduino.pinMode(closeSignal, OUTPUT);
+		} catch (Exception e) {
+			Notification.show("Контроллер не найден на порту " + portName,
+					Type.ERROR_MESSAGE);
+			if (arduino != null) {
+				arduino.close();
+			}
+			arduino = null;
+		}
+	}
+
+	@PreDestroy
+	private void deInit() {
+		arduino.close();
+		arduino = null;
+	}
+
+	/**
+	 * Округлить.
+	 * 
+	 * @param number
+	 * @param scale
+	 * @return
+	 */
+	private float round(float number, int scale) {
+		int pow = 10;
+		for (int i = 1; i < scale; i++)
+			pow *= 10;
+		float tmp = number * pow;
+		return (float) (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) / pow;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * ru.skysoftlab.skylibs.events.ConfigurationListener#editIntervalEvent(
+	 * ru.skysoftlab.skylibs.events.SystemConfigEvent)
+	 */
+	@Override
+	public void editIntervalEvent(@Observes SystemConfigEvent event) {
+		String newSerialPortName = event.getParam(SERIAL_PORT);
+		if (newSerialPortName != null && newSerialPortName.length() > 0
+				&& !newSerialPortName.equals(portName)) {
+			portName = newSerialPortName;
+			if (arduino != null) {
+				arduino.close();
+			}
+			init();
+		}
+	}
+
+	@Override
+	public int getIllumination() {
+		if (arduino == null)
+			return -1;
+		try {
+			return arduino.analogRead(illumPin);
+		} catch (InvalidPinTypeException e) {
+			LOG.error(e.getMessage());
+		}
+		return -1;
+	}
+
+	@Override
+	public float getTemperature() {
+		if (arduino == null)
+			return -1;
+		try {
+			String value = arduino.sensorRead(dhtPin, Sensor.DHT22,
+					Dht22Params.TEMP, 3000);
+			return round(Float.parseFloat(value), 1);
+		} catch (InvalidPinTypeException e) {
+			LOG.error(e.getMessage());
+		}
+		return -1;
+	}
+
+	@Override
+	public float getHumidity() {
+		if (arduino == null)
+			return -1;
+		try {
+			String value = arduino.sensorRead(dhtPin, Sensor.DHT22,
+					Dht22Params.HUM, 3000);
+			return round(Float.parseFloat(value), 1);
+		} catch (InvalidPinTypeException e) {
+			LOG.error(e.getMessage());
+		}
+		return -1;
+	}
+
+	// @Asynchronous
+	@Override
+	@Produces
+	public GableState getGableState() {
+		if (gbState == null) {
+			// поиск конька
+			GableState gableNow = findGable();
+			if (gableNow != null) {
+				gbState = gableNow;
+			} else {
+				gbState = Close;
+				gableCalibrate();
+			}
+		}
+		return gbState;
+	}
+
+	private GableState findGable() {
+		if (arduino != null) {
+			try {
+				DigitalState closeSignalState = arduino.digitalRead(stateClose);
+				if (closeSignalState.equals(HIGH)) {
+					return GableState.Close;
+				}
+				DigitalState degrees30SignalState = arduino
+						.digitalRead(state30);
+				if (degrees30SignalState.equals(HIGH)) {
+					return GableState.Degrees30;
+				}
+				DigitalState degrees60SignalState = arduino
+						.digitalRead(state60);
+				if (degrees60SignalState.equals(HIGH)) {
+					return GableState.Degrees60;
+				}
+				DigitalState openSignalState = arduino.digitalRead(stateOpen);
+				if (openSignalState.equals(HIGH)) {
+					return GableState.Open;
+				}
+			} catch (InvalidPinTypeException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	private boolean isCalibrateMode = false;
+	private final Object calibrateLocker = new Object();
+
+	private void gableCalibrate() {
+		synchronized (calibrateLocker) {
+			isCalibrateMode = true;
+			sendCloseSignal();
+		}
+	}
+
+	@Override
+	public void setGableState(GableState newGableState) {
+		newGbState = newGableState;
+		int compare = newGableState.compareTo(getGableState());
+		if (compare > 0) {
+			sendOpenSignal();
+		} else if (compare < 0) {
+			sendCloseSignal();
+		} else {
+			// текущее состояние соответствует
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * ru.skysoftlab.greenhouse.common.GableStateListener#gableStateIs(ru.skysoftlab
+	 * .greenhouse.common.GableState)
+	 */
+	@Override
+	public void gableStateIs(GableState gableState) {
+		synchronized (calibrateLocker) {
+			gbState = gableState;
+			if (newGbState.equals(gableState) || isCalibrateMode) {
+				sendStopSignal();
+			}
+			isCalibrateMode = false;
+		}
+		gableMoveEvent.fire(new GableMoveEvent(gableState));
+	}
+
+	private void sendStopSignal() {
+		if (arduino == null)
+			return;
+		try {
+			arduino.digitalWrite(stopSignal, HIGH);
+			arduino.delay(1000);
+			arduino.digitalWrite(stopSignal, LOW);
+		} catch (InvalidPinTypeException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendOpenSignal() {
+		if (arduino == null)
+			return;
+		try {
+			arduino.digitalWrite(openSignal, HIGH);
+			arduino.delay(1000);
+			arduino.digitalWrite(openSignal, LOW);
+		} catch (InvalidPinTypeException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendCloseSignal() {
+		if (arduino == null)
+			return;
+		try {
+			arduino.digitalWrite(closeSignal, HIGH);
+			arduino.delay(1000);
+			arduino.digitalWrite(closeSignal, LOW);
+		} catch (InvalidPinTypeException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean isConnected() {
+		return !(arduino == null);
+	}
+
+}
