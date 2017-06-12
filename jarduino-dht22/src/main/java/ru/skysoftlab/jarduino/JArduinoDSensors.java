@@ -9,10 +9,11 @@ import org.sintef.jarduino.FixedSizePacket;
 import org.sintef.jarduino.InvalidPinTypeException;
 import org.sintef.jarduino.JArduino;
 import org.sintef.jarduino.JArduinoCom;
-import org.sintef.jarduino.JArduinoMessageHandler;
+import org.sintef.jarduino.JArduinoProtocolPacket;
 import org.sintef.jarduino.Pin;
 import org.sintef.jarduino.ProtocolConfiguration;
 import org.sintef.jarduino.comm.Serial4JArduino;
+import org.sintef.jarduino.observer.JArduinoObserver;
 import org.sintef.jarduino.observer.JArduinoSubject;
 
 import ru.skysoftlab.jarduino.msg.DigitalPinStateNotification;
@@ -67,9 +68,7 @@ public abstract class JArduinoDSensors extends JArduino {
 	}
 
 	private void init() {
-		sensorMessageHandler = new JArduinoDriverSensorMessageHandler(
-				messageHandler);
-		((JArduinoSubject) serial).unregister(messageHandler);
+		sensorMessageHandler = new JArduinoDriverSensorMessageHandler();
 		((JArduinoSubject) serial).register(sensorMessageHandler);
 	}
 
@@ -121,10 +120,14 @@ public abstract class JArduinoDSensors extends JArduino {
 	}
 
 	private class JArduinoDriverSensorMessageHandler extends
-			JArduinoDriverMessageHandlerSensorWrapper {
+			JArduinoSensorMessageHandler implements JArduinoObserver {
 
-		public JArduinoDriverSensorMessageHandler(JArduinoMessageHandler handler) {
-			super(handler);
+		public void receiveMsg(byte[] msg) {
+			JArduinoProtocolPacket p = (JArduinoProtocolPacket) JArduinoSensorProtocol
+					.createMessageFromPacket(msg);
+			if (p != null) {
+				p.acceptHandler(this);
+			}
 		}
 
 		public void handleDigitalSensorReadResult(DigitalSensorReadResultMsg msg) {
