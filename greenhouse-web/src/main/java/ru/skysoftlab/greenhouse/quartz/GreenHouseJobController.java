@@ -114,7 +114,9 @@ public class GreenHouseJobController extends JobController implements
 				&& !newDataInterval.equals(scanInterval)) {
 			dataInterval = newDataInterval;
 			try {
-				rescheduleJobNow(gableTK, dataInterval);
+				if(getScheduler().checkExists(gableJobKey)){
+					rescheduleJobNow(gableTK, dataInterval);	
+				}
 				LOG.info("RescheduleGableJob");
 			} catch (SchedulerException e) {
 				LOG.error("Error reschedule gable job", e);
@@ -124,7 +126,13 @@ public class GreenHouseJobController extends JobController implements
 		if (newAuto != null && !newAuto.equals(auto)) {
 			auto = newAuto;
 			if (auto) {
-				startGableJob();
+				try {
+					if(!getScheduler().checkExists(gableJobKey)){
+						startGableJob();	
+					}
+				} catch (SchedulerException e) {
+					LOG.error("Error checkExists gable job", e);
+				}
 			} else {
 				try {
 					resumeJobNow(gableJobKey);

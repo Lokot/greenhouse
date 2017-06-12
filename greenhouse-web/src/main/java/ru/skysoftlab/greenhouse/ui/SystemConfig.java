@@ -63,7 +63,7 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener,
 	private BeanFieldGroup<SystemConfigDto> formFieldBindings;
 
 	@Inject
-	@RequestScoped
+//	@RequestScoped
 	private SystemConfigDto dto;
 
 	private TextField scanInterval = new TextField(

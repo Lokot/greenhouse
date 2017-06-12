@@ -5,6 +5,17 @@ import static ru.skysoftlab.greenhouse.common.GableState.Degrees30;
 import static ru.skysoftlab.greenhouse.common.GableState.Degrees60;
 import static ru.skysoftlab.greenhouse.common.GableState.Open;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.DATA_INTERVAL;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.HUM_MAX;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SERIAL_PORT;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_1;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_2;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
@@ -15,6 +26,7 @@ import ru.skysoftlab.greenhouse.common.GableState;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import ru.skysoftlab.greenhouse.impl.IArduino;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
+import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
 
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -43,6 +55,9 @@ public class GableStateSelector extends GridLayout {
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;
+	
+	@Inject
+	private javax.enterprise.event.Event<SystemConfigEvent> systemEvent;
 
 	@Inject
 	@AppProperty(AUTO)
@@ -94,6 +109,7 @@ public class GableStateSelector extends GridLayout {
 					Notification.show("Настройки управления коньком изменены:",
 							String.valueOf(autoGableSelector.getValue()),
 							Type.TRAY_NOTIFICATION);
+					systemEvent.fire(new SystemConfigEvent(getDataForEvent()));
 				} catch (Exception e) {
 					Notification.show("Ошибка сохранения настроек:",
 							e.getMessage(), Type.TRAY_NOTIFICATION);
@@ -140,5 +156,11 @@ public class GableStateSelector extends GridLayout {
 			statesCombo.setValue(close);
 			break;
 		}
+	}
+	
+	public Map<String, Object> getDataForEvent() {
+		Map<String, Object> rv = new HashMap<>();
+		rv.put(AUTO, ((VaadinItemDto) autoGableSelector.getValue()).<Boolean> getObj());
+		return rv;
 	}
 }

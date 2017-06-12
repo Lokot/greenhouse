@@ -42,8 +42,7 @@ import com.vaadin.ui.Notification.Type;
 
 @Singleton
 // @Startup
-public class ArduinoProvider implements IArduino, ConfigurationListener,
-		GableStateListener {
+public class ArduinoProvider implements IArduino, ConfigurationListener, GableStateListener {
 
 	private static final long serialVersionUID = -3174953105876049988L;
 
@@ -59,25 +58,26 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 	private GableState gbState;
 	private GableState newGbState;
 
+	private final Object getArduinoDataLocker = new Object();
+
 	private GrenHouseArduino arduino;
 
 	@PostConstruct
 	private void init() {
 		// TODO изменить
-		System.setProperty("os.name", "Win32");
+		// System.setProperty("os.name", "Win32");
 		try {
 			arduino = new GrenHouseArduino(portName, this);
-			// arduino.pinMode(illumPin, INPUT);
-			// arduino.pinMode(stateOpen, INPUT);
-			// arduino.pinMode(state60, INPUT);
-			// arduino.pinMode(state30, INPUT);
-			// arduino.pinMode(stateClose, INPUT);
-			// arduino.pinMode(openSignal, OUTPUT);
-			// arduino.pinMode(stopSignal, OUTPUT);
-			// arduino.pinMode(closeSignal, OUTPUT);
+			arduino.pinMode(illumPin, INPUT);
+			arduino.pinMode(stateOpen, INPUT);
+			arduino.pinMode(state60, INPUT);
+			arduino.pinMode(state30, INPUT);
+			arduino.pinMode(stateClose, INPUT);
+			arduino.pinMode(openSignal, OUTPUT);
+			arduino.pinMode(stopSignal, OUTPUT);
+			arduino.pinMode(closeSignal, OUTPUT);
 		} catch (Exception e) {
-			Notification.show("Контроллер не найден на порту " + portName,
-					Type.ERROR_MESSAGE);
+			Notification.show("Контроллер не найден на порту " + portName, Type.ERROR_MESSAGE);
 			if (arduino != null) {
 				arduino.close();
 			}
@@ -116,8 +116,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 	@Override
 	public void editIntervalEvent(@Observes SystemConfigEvent event) {
 		String newSerialPortName = event.getParam(SERIAL_PORT);
-		if (newSerialPortName != null && newSerialPortName.length() > 0
-				&& !newSerialPortName.equals(portName)) {
+		if (newSerialPortName != null && newSerialPortName.length() > 0 && !newSerialPortName.equals(portName)) {
 			portName = newSerialPortName;
 			if (arduino != null) {
 				arduino.close();
@@ -128,42 +127,54 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 
 	@Override
 	public int getIllumination() {
-		if (arduino == null)
+		synchronized (getArduinoDataLocker) {
+			if (arduino == null)
+				return -1;
+			try {
+				return arduino.analogRead(illumPin);
+			} catch (InvalidPinTypeException e) {
+				LOG.error(e.getMessage());
+			}
 			return -1;
-		try {
-			return arduino.analogRead(illumPin);
-		} catch (InvalidPinTypeException e) {
-			LOG.error(e.getMessage());
 		}
-		return -1;
 	}
 
 	@Override
 	public float getTemperature() {
-		if (arduino == null)
+		synchronized (getArduinoDataLocker) {
+			if (arduino == null)
+				return -1;
+			try {
+				String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.TEMP, 5000);
+				try {
+					return round(Float.parseFloat(value), 1);
+				} catch (Exception e) {
+					return -1;
+				}
+			} catch (InvalidPinTypeException e) {
+				LOG.error(e.getMessage());
+			}
 			return -1;
-		try {
-			String value = arduino.sensorRead(dhtPin, Sensor.DHT22,
-					Dht22Params.TEMP, 3000);
-			return round(Float.parseFloat(value), 1);
-		} catch (InvalidPinTypeException e) {
-			LOG.error(e.getMessage());
 		}
-		return -1;
 	}
 
 	@Override
 	public float getHumidity() {
-		if (arduino == null)
+		synchronized (getArduinoDataLocker) {
+			if (arduino == null)
+				return -1;
+			try {
+				String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.HUM, 5000);
+				try {
+					return round(Float.parseFloat(value), 1);
+				} catch (Exception e) {
+					return -1;
+				}
+			} catch (InvalidPinTypeException e) {
+				LOG.error(e.getMessage());
+			}
 			return -1;
-		try {
-			String value = arduino.sensorRead(dhtPin, Sensor.DHT22,
-					Dht22Params.HUM, 3000);
-			return round(Float.parseFloat(value), 1);
-		} catch (InvalidPinTypeException e) {
-			LOG.error(e.getMessage());
 		}
-		return -1;
 	}
 
 	// @Asynchronous
@@ -184,31 +195,31 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 	}
 
 	private GableState findGable() {
-		if (arduino != null) {
-			try {
-				DigitalState closeSignalState = arduino.digitalRead(stateClose);
-				if (closeSignalState.equals(HIGH)) {
-					return GableState.Close;
+		synchronized (getArduinoDataLocker) {
+			if (arduino != null) {
+				try {
+					DigitalState closeSignalState = arduino.digitalRead(stateClose);
+					if (closeSignalState != null && closeSignalState.equals(HIGH)) {
+						return GableState.Close;
+					}
+					DigitalState degrees30SignalState = arduino.digitalRead(state30);
+					if (degrees30SignalState != null && degrees30SignalState.equals(HIGH)) {
+						return GableState.Degrees30;
+					}
+					DigitalState degrees60SignalState = arduino.digitalRead(state60);
+					if (degrees60SignalState != null && degrees60SignalState.equals(HIGH)) {
+						return GableState.Degrees60;
+					}
+					DigitalState openSignalState = arduino.digitalRead(stateOpen);
+					if (openSignalState != null && openSignalState.equals(HIGH)) {
+						return GableState.Open;
+					}
+				} catch (InvalidPinTypeException e) {
+					e.printStackTrace();
 				}
-				DigitalState degrees30SignalState = arduino
-						.digitalRead(state30);
-				if (degrees30SignalState.equals(HIGH)) {
-					return GableState.Degrees30;
-				}
-				DigitalState degrees60SignalState = arduino
-						.digitalRead(state60);
-				if (degrees60SignalState.equals(HIGH)) {
-					return GableState.Degrees60;
-				}
-				DigitalState openSignalState = arduino.digitalRead(stateOpen);
-				if (openSignalState.equals(HIGH)) {
-					return GableState.Open;
-				}
-			} catch (InvalidPinTypeException e) {
-				e.printStackTrace();
 			}
+			return null;
 		}
-		return null;
 	}
 
 	private boolean isCalibrateMode = false;
@@ -237,18 +248,22 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * ru.skysoftlab.greenhouse.common.GableStateListener#gableStateIs(ru.skysoftlab
-	 * .greenhouse.common.GableState)
+	 * @see ru.skysoftlab.greenhouse.common.GableStateListener#gableStateIs(ru.
+	 * skysoftlab .greenhouse.common.GableState)
 	 */
 	@Override
 	public void gableStateIs(GableState gableState) {
 		synchronized (calibrateLocker) {
 			gbState = gableState;
-			if (newGbState.equals(gableState) || isCalibrateMode) {
+			if (newGbState != null && newGbState.equals(gableState)) {
 				sendStopSignal();
+				isCalibrateMode = false;
+				newGbState = null;
 			}
-			isCalibrateMode = false;
+			if (isCalibrateMode) {
+				sendStopSignal();
+				isCalibrateMode = false;
+			}
 		}
 		gableMoveEvent.fire(new GableMoveEvent(gableState));
 	}
@@ -257,9 +272,10 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 		if (arduino == null)
 			return;
 		try {
+			arduino.digitalWrite(stopSignal, LOW);
+			arduino.delay(1000);
 			arduino.digitalWrite(stopSignal, HIGH);
 			arduino.delay(1000);
-			arduino.digitalWrite(stopSignal, LOW);
 		} catch (InvalidPinTypeException e) {
 			e.printStackTrace();
 		}
@@ -269,9 +285,10 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 		if (arduino == null)
 			return;
 		try {
-			arduino.digitalWrite(openSignal, HIGH);
-			arduino.delay(1000);
+			sendStopSignal();
 			arduino.digitalWrite(openSignal, LOW);
+			arduino.delay(1000);
+			arduino.digitalWrite(openSignal, HIGH);
 		} catch (InvalidPinTypeException e) {
 			e.printStackTrace();
 		}
@@ -281,9 +298,10 @@ public class ArduinoProvider implements IArduino, ConfigurationListener,
 		if (arduino == null)
 			return;
 		try {
-			arduino.digitalWrite(closeSignal, HIGH);
-			arduino.delay(1000);
+			sendStopSignal();
 			arduino.digitalWrite(closeSignal, LOW);
+			arduino.delay(1000);
+			arduino.digitalWrite(closeSignal, HIGH);
 		} catch (InvalidPinTypeException e) {
 			e.printStackTrace();
 		}
