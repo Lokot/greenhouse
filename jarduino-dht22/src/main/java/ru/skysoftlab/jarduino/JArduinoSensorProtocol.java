@@ -19,7 +19,6 @@ package ru.skysoftlab.jarduino;
 
 import org.sintef.jarduino.DigitalPin;
 import org.sintef.jarduino.FixedSizePacket;
-import org.sintef.jarduino.JArduinoProtocol;
 
 import ru.skysoftlab.jarduino.msg.DigitalPinStateNotification;
 import ru.skysoftlab.jarduino.msg.DigitalSensorReadMsg;
@@ -28,28 +27,33 @@ import ru.skysoftlab.jarduino.sensors.Sensor;
 import ru.skysoftlab.jarduino.sensors.SensorParametr;
 
 public abstract class JArduinoSensorProtocol {
-	
-	public static final byte DIGITAL_SENSOR_READ = 51; 
+
+	public static final byte DIGITAL_SENSOR_READ = 51;
 	public static final byte DIGITAL_SENSOR_READ_RESULT = 52;
 	public static final byte DIGITAL_PIN_STATE = 53;
 
 	public static FixedSizePacket createMessageFromPacket(byte[] packet) {
 		byte packetType = packet[4];
-		FixedSizePacket result = JArduinoProtocol.createMessageFromPacket(packet);
-		if(result == null){
-			switch(packetType){
-			case DIGITAL_SENSOR_READ: result = new DigitalSensorReadMsg(packet); break; 
-			case DIGITAL_SENSOR_READ_RESULT: result = new DigitalSensorReadResultMsg(packet); break; 
-			case DIGITAL_PIN_STATE: result = new DigitalPinStateNotification(packet); break;
-			default: break;
-		}
+		FixedSizePacket result = null;
+		switch (packetType) {
+		case DIGITAL_SENSOR_READ:
+			result = new DigitalSensorReadMsg(packet);
+			break;
+		case DIGITAL_SENSOR_READ_RESULT:
+			result = new DigitalSensorReadResultMsg(packet);
+			break;
+		case DIGITAL_PIN_STATE:
+			result = new DigitalPinStateNotification(packet);
+			break;
+		default:
+			break;
 		}
 		return result;
 	}
 
-	public static FixedSizePacket createSensorRead(DigitalPin pin, Sensor sensor,
-			SensorParametr parametr) {
+	public static FixedSizePacket createSensorRead(DigitalPin pin,
+			Sensor sensor, SensorParametr parametr) {
 		return new DigitalSensorReadMsg(pin, sensor, parametr);
 	}
-	
+
 }

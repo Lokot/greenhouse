@@ -134,6 +134,7 @@ public class ArduinoEmulator {
 			}
 			// send the message
 			try {
+				System.out.println("SensorRead");
 				sendOutgoingMessage(payload, 16);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -151,6 +152,7 @@ public class ArduinoEmulator {
 			payload[5] = 1;
 			// send the message
 			try {
+				System.out.println("digitalRead");
 				sendOutgoingMessage(payload, 16);
 			} catch (IOException e) {
 				e.printStackTrace();

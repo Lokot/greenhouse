@@ -179,7 +179,7 @@ public class Serial4JArduino implements JArduinoClientObserver, JArduinoSubject 
 								packet[i] = buffer[i];
 							}
 							for (JArduinoObserver o : observers) {
-								o.receiveMsg(packet);
+								o.receiveMsg(packet);	
 							}
 							state = RCV_WAIT;
 						} else if (data == START_BYTE) {
