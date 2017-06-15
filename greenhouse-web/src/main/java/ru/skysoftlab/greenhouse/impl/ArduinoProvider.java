@@ -1,18 +1,18 @@
 package ru.skysoftlab.greenhouse.impl;
 
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.HIGH;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.INPUT;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.LOW;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.OUTPUT;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.closeSignal;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.dhtPin;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.illumPin;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.openSignal;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.state30;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.state60;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.stateClose;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.stateOpen;
-import static ru.skysoftlab.greenhouse.common.ArduinoPins.stopSignal;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.HIGH;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.INPUT;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.LOW;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.OUTPUT;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.closeSignal;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.dhtPin;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.illumPin;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.openSignal;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.state30;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.state60;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.stateClose;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.stateOpen;
+import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.stopSignal;
 import static ru.skysoftlab.greenhouse.common.GableState.Close;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SERIAL_PORT;
 
@@ -28,11 +28,12 @@ import org.sintef.jarduino.InvalidPinTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.skysoftlab.greenhouse.arduino.Dht22Params;
+import ru.skysoftlab.greenhouse.arduino.IArduino;
+import ru.skysoftlab.greenhouse.arduino.Sensor;
 import ru.skysoftlab.greenhouse.common.GableMoveEvent;
 import ru.skysoftlab.greenhouse.common.GableState;
 import ru.skysoftlab.greenhouse.common.GableStateListener;
-import ru.skysoftlab.jarduino.sensors.Dht22Params;
-import ru.skysoftlab.jarduino.sensors.Sensor;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;

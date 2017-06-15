@@ -1,9 +1,11 @@
-package ru.skysoftlab.jarduino.sensors;
+package ru.skysoftlab.greenhouse.arduino;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Dht22Params implements SensorParametr {
+import org.sintef.jarduino.JArduinoSensorParametr;
+
+public enum Dht22Params implements JArduinoSensorParametr {
 	
 	TEMP((byte) 0), HUM((byte) 1);
 
@@ -13,6 +15,7 @@ public enum Dht22Params implements SensorParametr {
 		this.value = value;
 	}
 
+	@Override
 	public byte getValue() {
 		return value;
 	}
@@ -29,6 +32,7 @@ public enum Dht22Params implements SensorParametr {
 		return map.get(b);
 	}
 
+	@Override
 	public boolean isIt(byte value) {
 		return this.value == value;
 	}

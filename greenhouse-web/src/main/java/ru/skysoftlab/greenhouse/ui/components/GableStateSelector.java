@@ -21,10 +21,10 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.GableMoveEvent;
 import ru.skysoftlab.greenhouse.common.GableState;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
-import ru.skysoftlab.greenhouse.impl.IArduino;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;

@@ -8,16 +8,15 @@ import static ru.skysoftlab.greenhouse.common.GableState.Open;
 import org.sintef.jarduino.DigitalPin;
 import org.sintef.jarduino.DigitalState;
 import org.sintef.jarduino.InvalidPinTypeException;
+import org.sintef.jarduino.JArduinoDSensors;
 
 import ru.skysoftlab.greenhouse.common.GableStateListener;
-import ru.skysoftlab.jarduino.JArduinoDSensors;
 
 public class GrenHouseArduino extends JArduinoDSensors {
 
 	private GableStateListener gableStateListener;
 
-	public GrenHouseArduino(String id, GableStateListener gableStateListener)
-			throws gnu.io.NoSuchPortException {
+	public GrenHouseArduino(String id, GableStateListener gableStateListener) {
 		super(id);
 		this.gableStateListener = gableStateListener;
 	}

@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.common;
+package ru.skysoftlab.greenhouse.arduino;
 
 import org.sintef.jarduino.DigitalState;
 import org.sintef.jarduino.Pin;

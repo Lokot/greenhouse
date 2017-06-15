@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.impl;
+package ru.skysoftlab.greenhouse.arduino;
 
 import java.io.Serializable;
 

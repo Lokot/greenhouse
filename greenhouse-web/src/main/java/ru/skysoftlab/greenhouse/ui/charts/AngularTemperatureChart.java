@@ -11,8 +11,8 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.AbstractChartBean;
-import ru.skysoftlab.greenhouse.impl.IArduino;
 import ru.skysoftlab.greenhouse.ui.MainView;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 import at.downdrown.vaadinaddons.highchartsapi.Colors;

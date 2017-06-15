@@ -11,9 +11,9 @@ import org.apache.openejb.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.GableState;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
-import ru.skysoftlab.greenhouse.impl.IArduino;
 import ru.skysoftlab.greenhouse.jpa.entitys.Readout;
 
 /**
