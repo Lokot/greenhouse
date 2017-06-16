@@ -15,6 +15,7 @@ import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.stateOpen;
 import static ru.skysoftlab.greenhouse.arduino.ArduinoPins.stopSignal;
 import static ru.skysoftlab.greenhouse.common.GableState.Close;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SERIAL_PORT;
+import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -59,14 +60,10 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	private GableState gbState;
 	private GableState newGbState;
 
-	private final Object getArduinoDataLocker = new Object();
-
 	private GrenHouseArduino arduino;
 
 	@PostConstruct
 	private void init() {
-		// TODO изменить
-		// System.setProperty("os.name", "Win32");
 		try {
 			arduino = new GrenHouseArduino(portName, this);
 			arduino.pinMode(illumPin, INPUT);
@@ -128,7 +125,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 
 	@Override
 	public int getIllumination() {
-		synchronized (getArduinoDataLocker) {
+		synchronized (LOCK) {
 			if (arduino == null)
 				return -1;
 			try {
@@ -142,7 +139,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 
 	@Override
 	public float getTemperature() {
-		synchronized (getArduinoDataLocker) {
+		synchronized (LOCK) {
 			if (arduino == null)
 				return -1;
 			try {
@@ -161,7 +158,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 
 	@Override
 	public float getHumidity() {
-		synchronized (getArduinoDataLocker) {
+		synchronized (LOCK) {
 			if (arduino == null)
 				return -1;
 			try {
@@ -196,7 +193,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	}
 
 	private GableState findGable() {
-		synchronized (getArduinoDataLocker) {
+		synchronized (LOCK) {
 			if (arduino != null) {
 				try {
 					DigitalState closeSignalState = arduino.digitalRead(stateClose);

@@ -15,6 +15,8 @@ import ru.skysoftlab.greenhouse.common.GableStateListener;
 public class GrenHouseArduino extends JArduinoDSensors {
 
 	private GableStateListener gableStateListener;
+	
+	public static final Object LOCK = new Object();
 
 	public GrenHouseArduino(String id, GableStateListener gableStateListener) {
 		super(id);

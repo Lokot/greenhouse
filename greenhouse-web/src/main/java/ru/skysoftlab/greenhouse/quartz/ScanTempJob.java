@@ -1,5 +1,7 @@
 package ru.skysoftlab.greenhouse.quartz;
 
+import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
+
 import java.util.Date;
 
 import javax.inject.Inject;
@@ -34,27 +36,27 @@ public class ScanTempJob implements Job {
 	private DataBaseProvider dataBaseProvider;
 
 	@Override
-	public void execute(JobExecutionContext context)
-			throws JobExecutionException {
-		if (arduino.isConnected()) {
-			try {
-				LOG.info("Check params to database "
-						+ context.getJobDetail().getKey());
-				Date now = context.getScheduledFireTime();
-				Float temperature = arduino.getTemperature();
-				Float humidity = arduino.getHumidity();
-				int illumination = arduino.getIllumination();
-				GableState gableState = arduino.getGableState();
-				Readout rd = new Readout(temperature, humidity, illumination,
-						now);
-				rd.setGableState(gableState);
+	public void execute(JobExecutionContext context) throws JobExecutionException {
+		synchronized (LOCK) {
+			if (arduino.isConnected()) {
 				try {
-					dataBaseProvider.saveReadout(rd);
-				} catch (Exception e) {
-					LOG.error("Save Readout error", e);
+					LOG.info("Check params to database "
+							+ context.getJobDetail().getKey());
+					Date now = context.getScheduledFireTime();
+					Float temperature = arduino.getTemperature();
+					Float humidity = arduino.getHumidity();
+					int illumination = arduino.getIllumination();
+					GableState gableState = arduino.getGableState();
+					Readout rd = new Readout(temperature, humidity, illumination, now);
+					rd.setGableState(gableState);
+					try {
+						dataBaseProvider.saveReadout(rd);
+					} catch (Exception e) {
+						LOG.error("Save Readout error", e);
+					}
+				} catch (NullPointerException e) {
+					LOG.error("Arduino not reporting:", e);
 				}
-			} catch (NullPointerException e) {
-				LOG.error("Arduino not reporting:", e);
 			}
 		}
 	}

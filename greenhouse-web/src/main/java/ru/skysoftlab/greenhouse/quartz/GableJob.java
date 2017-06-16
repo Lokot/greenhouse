@@ -6,6 +6,7 @@ import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_1;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_2;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
+import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -62,44 +63,46 @@ public class GableJob implements Job, ConfigurationListener {
 	private Boolean auto;
 
 	@Override
-	public void execute(JobExecutionContext context)
-			throws JobExecutionException {
-		LOG.info("Check params to gable " + context.getJobDetail().getKey());
-		if (auto && arduino.isConnected()) {
-			try {
-				LOG.info("Gable Auto Mode");
-				Float temperature = arduino.getTemperature();
-				Float humidity = arduino.getHumidity();
-				if (humidity < humMax) {
-					if (temperature >= tempMin && temperature < temp1) {
-						arduino.setGableState(GableState.Close);
-					} else if (temperature >= temp1 && temperature < temp2) {
-						arduino.setGableState(GableState.Degrees30);
-					} else if (temperature >= temp2 && temperature < tempMax) {
-						arduino.setGableState(GableState.Degrees60);
-					} else if (temperature >= tempMax) {
-						arduino.setGableState(GableState.Open);
+	public void execute(JobExecutionContext context) throws JobExecutionException {
+		synchronized (LOCK) {
+			LOG.info("Check params to gable " + context.getJobDetail().getKey());
+			if (auto && arduino.isConnected()) {
+				try {
+					LOG.info("Gable Auto Mode");
+					Float temperature = arduino.getTemperature();
+					Float humidity = arduino.getHumidity();
+					if (humidity < humMax) {
+						if (temperature >= tempMin && temperature < temp1) {
+							arduino.setGableState(GableState.Close);
+						} else if (temperature >= temp1 && temperature < temp2) {
+							arduino.setGableState(GableState.Degrees30);
+						} else if (temperature >= temp2
+								&& temperature < tempMax) {
+							arduino.setGableState(GableState.Degrees60);
+						} else if (temperature >= tempMax) {
+							arduino.setGableState(GableState.Open);
+						} else {
+							// temperature < tempMin
+							arduino.setGableState(GableState.Close);
+						}
 					} else {
-						// temperature < tempMin
-						arduino.setGableState(GableState.Close);
+						if (temperature >= tempMin && temperature < temp1) {
+							arduino.setGableState(GableState.Degrees30);
+						} else if (temperature >= temp1 && temperature < temp2) {
+							arduino.setGableState(GableState.Degrees60);
+						} else if (temperature >= temp2) {
+							arduino.setGableState(GableState.Open);
+						} else {
+							// temperature < tempMin
+							arduino.setGableState(GableState.Degrees30);
+						}
 					}
-				} else {
-					if (temperature >= tempMin && temperature < temp1) {
-						arduino.setGableState(GableState.Degrees30);
-					} else if (temperature >= temp1 && temperature < temp2) {
-						arduino.setGableState(GableState.Degrees60);
-					} else if (temperature >= temp2) {
-						arduino.setGableState(GableState.Open);
-					} else {
-						// temperature < tempMin
-						arduino.setGableState(GableState.Degrees30);
-					}
+				} catch (NullPointerException e) {
+					LOG.error("Arduino not reporting:", e);
 				}
-			} catch (NullPointerException e) {
-				LOG.error("Arduino not reporting:", e);
+			} else {
+				LOG.info("Gable Manual Mode");
 			}
-		} else {
-			LOG.info("Gable Manual Mode");
 		}
 	}
 
