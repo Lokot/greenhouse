@@ -1,8 +1,14 @@
-package ru.skysoftlab.zlock.impl.ui;
+package ru.skysoftlab.greenhouse.impl.ui;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+
+import ru.skysoftlab.greenhouse.impl.ui.greenhouse.IArduinoGreenHouse;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
@@ -18,23 +24,27 @@ public class ArduinoEmulator {
 	protected InputStream in;
 	protected OutputStream out;
 
+	private TestSerialReader reader;
+
+	private IArduinoGreenHouse arduinoGreenHouse;
+
 	public ArduinoEmulator() {
-		serialPort = SerialPort.getCommPort("COM5");
+		serialPort = SerialPort.getCommPort("COM2");
 		serialPort.openPort();
 		// com5.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100,
 		// 0);
-		serialPort.setComPortParameters(9600, 8, SerialPort.ONE_STOP_BIT,
-				SerialPort.NO_PARITY);
+		serialPort.setComPortParameters(9600, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
 		in = serialPort.getInputStream();
 		out = serialPort.getOutputStream();
-		serialPort.addDataListener(new TestSerialReader());
+		reader = new TestSerialReader();
+		serialPort.addDataListener(reader);
 	}
 
 	public static void main(String[] args) {
 		new ArduinoEmulator();
 	}
 
-	public class TestSerialReader implements SerialPortDataListener {
+	public class TestSerialReader implements SerialPortDataListener, Listener {
 
 		public static final int RCV_WAIT = 0;
 		public static final int RCV_MSG = 1;
@@ -93,9 +103,13 @@ public class ArduinoEmulator {
 			case 4:
 				receivedigitalRead(data[5]);
 				break;
-			// case 3: receivedigitalWrite(data[5], data[6]); break;
+			case 3:
+				receivedigitalWrite(data[5], data[6]);
+				break;
 			// case 6: receiveanalogReference(data[5]); break;
-			// case 7: receiveanalogRead(data[5]); break;
+			case 7:
+				receiveanalogRead(data[5]);
+				break;
 			// case 9: receiveanalogWrite(data[5], data[6]); break;
 			// case 10: receivetone(data[5], (data[6] << 8) + data[7], (data[8]
 			// << 8) + data[9]); break;
@@ -118,8 +132,55 @@ public class ArduinoEmulator {
 
 		}
 
+		private void receivedigitalWrite(byte pin, byte state) {
+			switch (pin) {
+			case 4: // OPEN_SIGNAL_PIN
+				arduinoGreenHouse.gableOpen(state);
+				break;
+			case 3: // STOP_SIGNAL_PIN
+				arduinoGreenHouse.gableStop(state);
+				break;
+			case 2: // CLOSE_SIGNAL_PIN
+				arduinoGreenHouse.gableClose(state);
+				break;
+			}
+		}
+
+		private void receiveanalogRead(byte pin) {
+			int value = arduinoGreenHouse.getIllum();
+			byte[] payload = new byte[32];
+			payload[0] = 0x01; // source addr (not used)
+			payload[1] = 0x00; // target addr (not used)
+			payload[2] = 0x00; // frame num (not used)
+			payload[3] = 2; // length of the params
+			payload[4] = 8; // command code
+			// set params here
+			payload[5] = (byte) (value >> 8 & 0x00ff);
+			payload[6] = (byte) (value & 0x00ff);
+			// send the message
+			try {
+				System.out.println("Send AnalogRead");
+				sendOutgoingMessage(payload, 16);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		private void receivedigitalSensorRead(byte pin, byte sensor, byte type) {
-			String value = "12.5";
+			String value = null;
+			switch (type) {
+			case 0:
+				value = arduinoGreenHouse.getTemp();
+				break;
+
+			case 1:
+				value = arduinoGreenHouse.getHum();
+				break;
+
+			default:
+				value = "No Data";
+				break;
+			}
 			byte[] payload = new byte[32];
 			payload[0] = 0x01; // source addr (not used)
 			payload[1] = 0x00; // target addr (not used)
@@ -139,7 +200,22 @@ public class ArduinoEmulator {
 			}
 		}
 
-		private void receivedigitalRead(byte b) {
+		private void receivedigitalRead(byte pin) {
+			byte val = 0;
+			switch (pin) {
+			case 13: // OPEN_PIN
+				val = arduinoGreenHouse.getGableState(3);
+				break;
+			case 12: // OPEN_60_PIN
+				val = arduinoGreenHouse.getGableState(2);
+				break;
+			case 11: // OPEN_30_PIN
+				val = arduinoGreenHouse.getGableState(1);
+				break;
+			case 10: // CLOSE_PIN
+				val = arduinoGreenHouse.getGableState(0);
+				break;
+			}
 			byte[] payload = new byte[32];
 			payload[0] = 0x01; // source addr (not used)
 			payload[1] = 0x00; // target addr (not used)
@@ -147,7 +223,7 @@ public class ArduinoEmulator {
 			payload[3] = 1; // length of the params
 			payload[4] = 5; // command code
 			// set params here
-			payload[5] = 1;
+			payload[5] = val;
 			// send the message
 			try {
 				System.out.println("digitalRead");
@@ -157,16 +233,32 @@ public class ArduinoEmulator {
 			}
 		}
 
-		private void sendOutgoingMessage(byte[] data, int size)
-				throws IOException {
+		public void sendinterruptNotification(byte interrupt) {
+			byte[] payload = new byte[32];
+			payload[0] = 0x01; // source addr (not used)
+			payload[1] = 0x00; // target addr (not used)
+			payload[2] = 0x00; // frame num (not used)
+			payload[3] = 1; // length of the params
+			payload[4] = 23; // command code
+			// set params here
+			payload[5] = interrupt;
+			// send the message
+			try {
+				System.out.println("sendinterruptNotification");
+				sendOutgoingMessage(payload, 16);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		private void sendOutgoingMessage(byte[] data, int size) throws IOException {
 			int i = 0;
 			// send the start byte
 			out.write(START_BYTE);
 			// send data
 			for (i = 0; i < size; i++) {
 				// escape special bytes
-				if (data[i] == START_BYTE || data[i] == STOP_BYTE
-						|| data[i] == ESCAPE_BYTE) {
+				if (data[i] == START_BYTE || data[i] == STOP_BYTE || data[i] == ESCAPE_BYTE) {
 					out.write(ESCAPE_BYTE);
 				}
 				out.write(data[i]);
@@ -179,6 +271,24 @@ public class ArduinoEmulator {
 		public int getListeningEvents() {
 			return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
 		}
+
+		@Override
+		public void handleEvent(Event event) {
+			Button button = (Button) event.widget;
+			if (button.getSelection()) {
+				sendinterruptNotification(Byte.parseByte(button.getData("state").toString()));
+				System.out.println(button.getData("state"));
+			}
+		}
+
+	}
+
+	public void setArduinoGreenHouse(IArduinoGreenHouse arduinoGreenHouse) {
+		this.arduinoGreenHouse = arduinoGreenHouse;
+	}
+
+	public Listener getListener() {
+		return reader;
 	}
 
 }

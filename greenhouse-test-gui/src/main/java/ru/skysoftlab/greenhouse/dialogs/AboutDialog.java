@@ -1,4 +1,4 @@
-package ru.skysoftlab.zlock.impl.ui.usbmanager.dialogs;
+package ru.skysoftlab.greenhouse.dialogs;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;

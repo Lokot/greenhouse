@@ -1,4 +1,4 @@
-package ru.skysoftlab.zlock.impl.ui;
+package ru.skysoftlab.greenhouse.impl.ui;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
@@ -12,13 +12,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import ru.skysoftlab.zlock.impl.ui.usbmanager.UsbManger;
-import ru.skysoftlab.zlock.impl.ui.usbmanager.dialogs.AboutDialog;
+import ru.skysoftlab.greenhouse.dialogs.AboutDialog;
+import ru.skysoftlab.greenhouse.impl.ui.greenhouse.GreenHouseManger;
 
 public class MainWindow extends ApplicationWindow {
 
 	private Shell shell;
-	private UsbManger mainContent;
+	private GreenHouseManger mainContent;
 	private AboutDialog aboutDialog;
 
 	/**
@@ -112,11 +112,9 @@ public class MainWindow extends ApplicationWindow {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("ZLock Configurator");
-//		newShell.setImage(Utils.getImage(newShell.getDisplay(), "zlock_conf_icon.png"));
+		newShell.setText("GreenHouse tester.");
 		shell = newShell;
-		mainContent = new UsbManger(shell);
-//		usbAnalize = new UsbAnalize();
+		mainContent = new GreenHouseManger(shell);
 		aboutDialog = new AboutDialog(shell);
 	}
 
@@ -125,7 +123,7 @@ public class MainWindow extends ApplicationWindow {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(450, 300);
+		return new Point(450, 220);
 	}
 
 	class UsbManager extends Action {
