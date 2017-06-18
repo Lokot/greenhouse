@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
@@ -29,7 +30,7 @@ public class ArduinoEmulator {
 	private IArduinoGreenHouse arduinoGreenHouse;
 
 	public ArduinoEmulator() {
-		serialPort = SerialPort.getCommPort("COM2");
+		serialPort = SerialPort.getCommPort("COM3");
 		serialPort.openPort();
 		// com5.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100,
 		// 0);
@@ -132,119 +133,154 @@ public class ArduinoEmulator {
 
 		}
 
-		private void receivedigitalWrite(byte pin, byte state) {
-			switch (pin) {
-			case 4: // OPEN_SIGNAL_PIN
-				arduinoGreenHouse.gableOpen(state);
-				break;
-			case 3: // STOP_SIGNAL_PIN
-				arduinoGreenHouse.gableStop(state);
-				break;
-			case 2: // CLOSE_SIGNAL_PIN
-				arduinoGreenHouse.gableClose(state);
-				break;
+		private void receivedigitalWrite(final byte pin, final byte state) {
+			if (state > 0) {
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						switch (pin) {
+						case 4: // OPEN_SIGNAL_PIN
+							arduinoGreenHouse.gableOpen(state);
+							System.out.println("Открывается");
+							break;
+						case 3: // STOP_SIGNAL_PIN
+							arduinoGreenHouse.gableStop(state);
+							System.out.println("Стоп");
+							break;
+						case 2: // CLOSE_SIGNAL_PIN
+							arduinoGreenHouse.gableClose(state);
+							System.out.println("Закрывается");
+							break;
+						}
+					}
+				});
 			}
 		}
 
 		private void receiveanalogRead(byte pin) {
-			int value = arduinoGreenHouse.getIllum();
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					int value = arduinoGreenHouse.getIllum();
+					byte[] payload = new byte[32];
+					payload[0] = 0x01; // source addr (not used)
+					payload[1] = 0x00; // target addr (not used)
+					payload[2] = 0x00; // frame num (not used)
+					payload[3] = 2; // length of the params
+					payload[4] = 8; // command code
+					// set params here
+					payload[5] = (byte) (value >> 8 & 0x00ff);
+					payload[6] = (byte) (value & 0x00ff);
+					// send the message
+					try {
+						sendOutgoingMessage(payload, 16);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+
+		private void receivedigitalSensorRead(byte pin, byte sensor, final byte type) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					String value = null;
+					switch (type) {
+					case 0:
+						value = arduinoGreenHouse.getTemp();
+						break;
+
+					case 1:
+						value = arduinoGreenHouse.getHum();
+						break;
+
+					default:
+						value = "No Data";
+						break;
+					}
+					byte[] payload = new byte[32];
+					payload[0] = 0x01; // source addr (not used)
+					payload[1] = 0x00; // target addr (not used)
+					payload[2] = 0x00; // frame num (not used)
+					payload[3] = (byte) value.length(); // length of the params
+					payload[4] = 52; // command code
+					byte[] vals = value.getBytes();
+					for (int i = 0; i < vals.length; i++) {
+						payload[i + 5] = vals[i];
+					}
+					// send the message
+					try {
+						sendOutgoingMessage(payload, 16);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+
+		private void receivedigitalRead(final byte pin) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					byte val = 0;
+					switch (pin) {
+					case 13: // OPEN_PIN
+						val = arduinoGreenHouse.getGableState(3);
+						break;
+					case 12: // OPEN_60_PIN
+						val = arduinoGreenHouse.getGableState(2);
+						break;
+					case 11: // OPEN_30_PIN
+						val = arduinoGreenHouse.getGableState(1);
+						break;
+					case 10: // CLOSE_PIN
+						val = arduinoGreenHouse.getGableState(0);
+						break;
+					}
+					byte[] payload = new byte[32];
+					payload[0] = 0x01; // source addr (not used)
+					payload[1] = 0x00; // target addr (not used)
+					payload[2] = 0x00; // frame num (not used)
+					payload[3] = 1; // length of the params
+					payload[4] = 5; // command code
+					// set params here
+					payload[5] = val;
+					// send the message
+					try {
+						sendOutgoingMessage(payload, 16);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		}
+
+		// public void sendinterruptNotification(byte interrupt) {
+		// byte[] payload = new byte[32];
+		// payload[0] = 0x01; // source addr (not used)
+		// payload[1] = 0x00; // target addr (not used)
+		// payload[2] = 0x00; // frame num (not used)
+		// payload[3] = 1; // length of the params
+		// payload[4] = 23; // command code
+		// // set params here
+		// payload[5] = interrupt;
+		// // send the message
+		// try {
+		// sendOutgoingMessage(payload, 16);
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		// }
+
+		public void sendpinStateNotification(byte pin, byte state) {
 			byte[] payload = new byte[32];
 			payload[0] = 0x01; // source addr (not used)
 			payload[1] = 0x00; // target addr (not used)
 			payload[2] = 0x00; // frame num (not used)
 			payload[3] = 2; // length of the params
-			payload[4] = 8; // command code
+			payload[4] = 53; // command code
 			// set params here
-			payload[5] = (byte) (value >> 8 & 0x00ff);
-			payload[6] = (byte) (value & 0x00ff);
+			payload[5] = pin;
+			payload[6] = state;
 			// send the message
 			try {
-				System.out.println("Send AnalogRead");
-				sendOutgoingMessage(payload, 16);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		private void receivedigitalSensorRead(byte pin, byte sensor, byte type) {
-			String value = null;
-			switch (type) {
-			case 0:
-				value = arduinoGreenHouse.getTemp();
-				break;
-
-			case 1:
-				value = arduinoGreenHouse.getHum();
-				break;
-
-			default:
-				value = "No Data";
-				break;
-			}
-			byte[] payload = new byte[32];
-			payload[0] = 0x01; // source addr (not used)
-			payload[1] = 0x00; // target addr (not used)
-			payload[2] = 0x00; // frame num (not used)
-			payload[3] = (byte) value.length(); // length of the params
-			payload[4] = 52; // command code
-			byte[] vals = value.getBytes();
-			for (int i = 0; i < vals.length; i++) {
-				payload[i + 5] = vals[i];
-			}
-			// send the message
-			try {
-				System.out.println("SensorRead");
-				sendOutgoingMessage(payload, 16);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		private void receivedigitalRead(byte pin) {
-			byte val = 0;
-			switch (pin) {
-			case 13: // OPEN_PIN
-				val = arduinoGreenHouse.getGableState(3);
-				break;
-			case 12: // OPEN_60_PIN
-				val = arduinoGreenHouse.getGableState(2);
-				break;
-			case 11: // OPEN_30_PIN
-				val = arduinoGreenHouse.getGableState(1);
-				break;
-			case 10: // CLOSE_PIN
-				val = arduinoGreenHouse.getGableState(0);
-				break;
-			}
-			byte[] payload = new byte[32];
-			payload[0] = 0x01; // source addr (not used)
-			payload[1] = 0x00; // target addr (not used)
-			payload[2] = 0x00; // frame num (not used)
-			payload[3] = 1; // length of the params
-			payload[4] = 5; // command code
-			// set params here
-			payload[5] = val;
-			// send the message
-			try {
-				System.out.println("digitalRead");
-				sendOutgoingMessage(payload, 16);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		public void sendinterruptNotification(byte interrupt) {
-			byte[] payload = new byte[32];
-			payload[0] = 0x01; // source addr (not used)
-			payload[1] = 0x00; // target addr (not used)
-			payload[2] = 0x00; // frame num (not used)
-			payload[3] = 1; // length of the params
-			payload[4] = 23; // command code
-			// set params here
-			payload[5] = interrupt;
-			// send the message
-			try {
-				System.out.println("sendinterruptNotification");
 				sendOutgoingMessage(payload, 16);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -276,8 +312,20 @@ public class ArduinoEmulator {
 		public void handleEvent(Event event) {
 			Button button = (Button) event.widget;
 			if (button.getSelection()) {
-				sendinterruptNotification(Byte.parseByte(button.getData("state").toString()));
-				System.out.println(button.getData("state"));
+				switch (Byte.parseByte(button.getData("state").toString())) {
+				case 3: // OPEN_PIN
+					sendpinStateNotification((byte) 13, (byte) 1);
+					break;
+				case 2: // OPEN_60_PIN
+					sendpinStateNotification((byte) 12, (byte) 1);
+					break;
+				case 1: // OPEN_30_PIN
+					sendpinStateNotification((byte) 11, (byte) 1);
+					break;
+				case 0: // CLOSE_PIN
+					sendpinStateNotification((byte) 10, (byte) 1);
+					break;
+				}
 			}
 		}
 

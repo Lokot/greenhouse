@@ -9,6 +9,7 @@
 		
 		<class>ru.skysoftlab.greenhouse.jpa.entitys.Readout</class>
 		<class>ru.skysoftlab.greenhouse.jpa.entitys.DateConfig</class>
+		<class>ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur</class>
 		<!-- Свойства. -->
 		<class>ru.skysoftlab.skylibs.entitys.properties.JpaProperty</class>
 		<class>ru.skysoftlab.skylibs.entitys.properties.BooleanProperty</class>

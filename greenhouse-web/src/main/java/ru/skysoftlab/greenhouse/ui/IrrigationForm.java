@@ -1,0 +1,58 @@
+package ru.skysoftlab.greenhouse.ui;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+
+import org.sintef.jarduino.DigitalPin;
+
+import ru.skysoftlab.crongen.CronGenExt;
+import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
+import ru.skysoftlab.skylibs.web.ui.AbstractForm;
+
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.TextField;
+
+/**
+ * Форма полива.
+ * 
+ * @author Loktionov Artem
+ *
+ */
+public class IrrigationForm extends AbstractForm<IrrigationCountur> {
+
+	private static final long serialVersionUID = 2372643403143137631L;
+
+	private TextField cronExpr;
+	private TextField name;
+	private TextField duration;
+	private ComboBox pin;
+	
+	@Override
+	protected void configureComponents() {
+		CronGenExt ext = new CronGenExt();
+		ext.extend(cronExpr);
+		super.configureComponents();
+	}
+	
+	@Override
+	protected Collection<? extends Component> getInputs() {
+		cronExpr = new TextField("Период ");
+		duration = new TextField("Длительность");
+		name = new TextField("Контур");
+		pin = new ComboBox("Пин", EnumSet.allOf(DigitalPin.class));
+		Collection<Component> rv = new ArrayList<>();
+		rv.add(cronExpr);
+		rv.add(duration);
+		rv.add(name);
+		rv.add(pin);
+		return rv;
+	}
+
+	@Override
+	protected void setFocus() {
+		name.focus();
+	}
+
+}
