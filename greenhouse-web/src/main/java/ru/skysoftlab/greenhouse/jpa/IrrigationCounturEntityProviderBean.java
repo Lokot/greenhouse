@@ -20,7 +20,7 @@ import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
-public class GpioPinEntityProviderBean extends MutableLocalEntityProvider<IrrigationCountur> {
+public class IrrigationCounturEntityProviderBean extends MutableLocalEntityProvider<IrrigationCountur> {
 
 	@Inject
 	private EntityManager em;
@@ -28,7 +28,7 @@ public class GpioPinEntityProviderBean extends MutableLocalEntityProvider<Irriga
 	@Resource
 	private UserTransaction utx;
 
-	public GpioPinEntityProviderBean() {
+	public IrrigationCounturEntityProviderBean() {
 		super(IrrigationCountur.class);
 		setTransactionsHandledByProvider(true);
 	}

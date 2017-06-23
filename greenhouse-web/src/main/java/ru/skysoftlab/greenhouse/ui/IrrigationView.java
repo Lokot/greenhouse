@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
-import ru.skysoftlab.greenhouse.jpa.GpioPinEntityProviderBean;
+import ru.skysoftlab.greenhouse.jpa.IrrigationCounturEntityProviderBean;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.greenhouse.web.MainMenu;
 import ru.skysoftlab.greenhouse.web.Navigation;
@@ -32,7 +32,7 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 	private static final long serialVersionUID = 6698245813955647506L;
 
 	@Inject
-	private GpioPinEntityProviderBean entityProvider;
+	private IrrigationCounturEntityProviderBean entityProvider;
 	
 	@Inject
 	private IrrigationForm form;

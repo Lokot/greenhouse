@@ -30,7 +30,7 @@ public class ArduinoEmulator {
 	private IArduinoGreenHouse arduinoGreenHouse;
 
 	public ArduinoEmulator() {
-		serialPort = SerialPort.getCommPort("COM3");
+		serialPort = SerialPort.getCommPort("COM2");
 		serialPort.openPort();
 		// com5.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100,
 		// 0);

@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import org.sintef.jarduino.DigitalPin;
 
 import ru.skysoftlab.crongen.CronGenExt;
+import ru.skysoftlab.greenhouse.common.DurationTextConverter;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.skylibs.web.ui.AbstractForm;
 
@@ -33,15 +34,16 @@ public class IrrigationForm extends AbstractForm<IrrigationCountur> {
 	protected void configureComponents() {
 		CronGenExt ext = new CronGenExt();
 		ext.extend(cronExpr);
+		duration.setConverter(new DurationTextConverter());
 		super.configureComponents();
 	}
 	
 	@Override
 	protected Collection<? extends Component> getInputs() {
-		cronExpr = new TextField("Период ");
-		duration = new TextField("Длительность");
-		name = new TextField("Контур");
-		pin = new ComboBox("Пин", EnumSet.allOf(DigitalPin.class));
+		cronExpr = new TextField("Период: ");
+		duration = new TextField("Длительность (мин.): ");
+		name = new TextField("Контур: ");
+		pin = new ComboBox("Пин: ", EnumSet.allOf(DigitalPin.class));
 		Collection<Component> rv = new ArrayList<>();
 		rv.add(cronExpr);
 		rv.add(duration);

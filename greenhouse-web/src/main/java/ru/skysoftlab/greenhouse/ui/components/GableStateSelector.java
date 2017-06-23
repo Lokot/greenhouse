@@ -5,14 +5,6 @@ import static ru.skysoftlab.greenhouse.common.GableState.Degrees30;
 import static ru.skysoftlab.greenhouse.common.GableState.Degrees60;
 import static ru.skysoftlab.greenhouse.common.GableState.Open;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.DATA_INTERVAL;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.HUM_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SERIAL_PORT;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_1;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_2;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
 
 import java.util.HashMap;
 import java.util.Map;
