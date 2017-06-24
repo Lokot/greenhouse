@@ -6,7 +6,6 @@ import java.util.Locale;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
-import jssc.SerialPortList;
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
 import org.slf4j.Logger;
@@ -24,6 +23,7 @@ import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
 import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
 import ru.skysoftlab.skylibs.web.ui.BaseMenuView;
 
+import com.fazecast.jSerialComm.SerialPort;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -115,7 +115,9 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener, 
 		// illumMin.setMax(1000);
 		// illumMin.setWidth("300px");
 		serialPort.removeAllItems();
-		serialPort.addItems(SerialPortList.getPortNames());
+		for (SerialPort port : SerialPort.getCommPorts()) {
+			serialPort.addItem(port.getSystemPortName());
+		}
 		auto.removeAllItems();
 		auto.addItems(new VaadinItemDto(true, "Автоматическое"), new VaadinItemDto(false, "Ручное"));
 		auto.setConverter(new CustomAutoGableConverter());

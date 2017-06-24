@@ -33,7 +33,7 @@ public class SystemConfigDto implements Serializable {
 	@Inject
 	@AppProperty(SERIAL_PORT)
 	private String serialPort;
-
+	
 	@Inject
 	@AppProperty(TEMP_MAX)
 	private Float tempMax;
@@ -53,7 +53,7 @@ public class SystemConfigDto implements Serializable {
 	@Inject
 	@AppProperty(HUM_MAX)
 	private Float humMax;
-	
+
 	@Inject
 	@AppProperty(AUTO)
 	private Boolean auto;
@@ -93,6 +93,14 @@ public class SystemConfigDto implements Serializable {
 		this.serialPort = serialPort;
 	}
 
+	public String getDataInterval() {
+		return dataInterval;
+	}
+
+	public void setDataInterval(String dataInterval) {
+		this.dataInterval = dataInterval;
+	}
+	
 	public Float getTempMax() {
 		return tempMax;
 	}
@@ -115,14 +123,6 @@ public class SystemConfigDto implements Serializable {
 
 	public void setHumMax(Float humMax) {
 		this.humMax = humMax;
-	}
-
-	public String getDataInterval() {
-		return dataInterval;
-	}
-
-	public void setDataInterval(String dataInterval) {
-		this.dataInterval = dataInterval;
 	}
 
 	public Float getTemp2() {

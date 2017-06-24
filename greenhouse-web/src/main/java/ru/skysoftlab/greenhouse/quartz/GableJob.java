@@ -8,6 +8,7 @@ import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
 import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,12 +16,14 @@ import javax.inject.Singleton;
 import org.apache.openejb.quartz.Job;
 import org.apache.openejb.quartz.JobExecutionContext;
 import org.apache.openejb.quartz.JobExecutionException;
+import org.kie.api.cdi.KSession;
+import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.skysoftlab.greenhouse.arduino.IArduino;
-import ru.skysoftlab.greenhouse.common.GableState;
-import ru.skysoftlab.skylibs.annatations.AppProperty;
+import ru.skysoftlab.greenhouse.dto.GableParamsDto;
+import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 
@@ -34,34 +37,30 @@ import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 public class GableJob implements Job, ConfigurationListener {
 
 	private Logger LOG = LoggerFactory.getLogger(GableJob.class);
+	
+	private Boolean auto;
 
 	@Inject
 	private IArduino arduino;
+	
+	@Inject
+	private SystemConfigDto dto;
 
 	@Inject
-	@AppProperty(TEMP_MAX)
-	private Float tempMax;
+	@KSession("ksession-rules")
+	KieSession kSession;
 
-	@Inject
-	@AppProperty(TEMP_2)
-	private Float temp2;
-
-	@Inject
-	@AppProperty(TEMP_1)
-	private Float temp1;
-
-	@Inject
-	@AppProperty(TEMP_MIN)
-	private Float tempMin;
-
-	@Inject
-	@AppProperty(HUM_MAX)
-	private Float humMax;
-
-	@Inject
-	@AppProperty(AUTO)
-	private Boolean auto;
-
+	@PostConstruct
+	public void init() {
+		auto = dto.getAuto();
+		kSession.setGlobal(HUM_MAX, dto.getHumMax());
+		kSession.setGlobal(TEMP_MAX, dto.getTempMax());
+		kSession.setGlobal(TEMP_2, dto.getTemp2());
+		kSession.setGlobal(TEMP_1, dto.getTemp1());
+		kSession.setGlobal(TEMP_MIN, dto.getTempMin());
+		kSession.setGlobal("arduino", arduino);
+	}
+	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		synchronized (LOCK) {
@@ -71,32 +70,10 @@ public class GableJob implements Job, ConfigurationListener {
 					LOG.info("Gable Auto Mode");
 					Float temperature = arduino.getTemperature();
 					Float humidity = arduino.getHumidity();
-					if (humidity < humMax) {
-						if (temperature >= tempMin && temperature < temp1) {
-							arduino.setGableState(GableState.Close);
-						} else if (temperature >= temp1 && temperature < temp2) {
-							arduino.setGableState(GableState.Degrees30);
-						} else if (temperature >= temp2
-								&& temperature < tempMax) {
-							arduino.setGableState(GableState.Degrees60);
-						} else if (temperature >= tempMax) {
-							arduino.setGableState(GableState.Open);
-						} else {
-							// temperature < tempMin
-							arduino.setGableState(GableState.Close);
-						}
-					} else {
-						if (temperature >= tempMin && temperature < temp1) {
-							arduino.setGableState(GableState.Degrees30);
-						} else if (temperature >= temp1 && temperature < temp2) {
-							arduino.setGableState(GableState.Degrees60);
-						} else if (temperature >= temp2) {
-							arduino.setGableState(GableState.Open);
-						} else {
-							// temperature < tempMin
-							arduino.setGableState(GableState.Degrees30);
-						}
-					}
+
+					GableParamsDto readOutDto = new GableParamsDto(temperature, humidity);
+					kSession.insert(readOutDto);
+					kSession.fireAllRules();
 				} catch (NullPointerException e) {
 					LOG.error("Arduino not reporting:", e);
 				}
@@ -108,25 +85,25 @@ public class GableJob implements Job, ConfigurationListener {
 
 	@Override
 	public void editIntervalEvent(@Observes SystemConfigEvent event) {
-		Float newtempMax = event.getParam(TEMP_MAX);
-		if (newtempMax != null && !newtempMax.equals(tempMax)) {
-			tempMax = newtempMax;
+		Float tempMax = event.getParam(TEMP_MAX);
+		if (tempMax != null) {
+			kSession.setGlobal(TEMP_MAX, tempMax);
 		}
-		Float newtemp2 = event.getParam(TEMP_2);
-		if (newtemp2 != null && !newtemp2.equals(temp2)) {
-			temp2 = newtemp2;
+		Float temp2 = event.getParam(TEMP_2);
+		if (temp2 != null) {
+			kSession.setGlobal(TEMP_2, temp2);
 		}
-		Float newtemp1 = event.getParam(TEMP_1);
-		if (newtemp1 != null && !newtemp1.equals(temp1)) {
-			temp1 = newtemp1;
+		Float temp1 = event.getParam(TEMP_1);
+		if (temp1 != null) {
+			kSession.setGlobal(TEMP_1, temp1);
 		}
-		Float newtempMin = event.getParam(TEMP_MIN);
-		if (newtempMin != null && !newtempMin.equals(tempMin)) {
-			tempMin = newtempMin;
+		Float tempMin = event.getParam(TEMP_MIN);
+		if (tempMin != null) {
+			kSession.setGlobal(TEMP_MIN, tempMin);
 		}
-		Float newHumMax = event.getParam(HUM_MAX);
-		if (newHumMax != null && !newHumMax.equals(humMax)) {
-			humMax = newHumMax;
+		Float humMax = event.getParam(HUM_MAX);
+		if (humMax != null) {
+			kSession.setGlobal(HUM_MAX, humMax);
 		}
 		Boolean newAuto = event.getParam(AUTO);
 		if (newAuto != null && !newAuto.equals(auto)) {

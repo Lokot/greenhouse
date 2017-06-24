@@ -1,0 +1,74 @@
+package ru.skysoftlab.greenhouse
+ 
+import ru.skysoftlab.greenhouse.dto.GableParamsDto
+import ru.skysoftlab.greenhouse.common.GableState
+
+global java.lang.Float humMax;
+global java.lang.Float tempMax;
+global java.lang.Float temp2;
+global java.lang.Float temp1;
+global java.lang.Float tempMin;
+global ru.skysoftlab.greenhouse.arduino.IArduino arduino;
+
+rule "humidityMax_1"
+  when
+  	$readOut : GableParamsDto( humidity > humMax,  temperature >= tempMin, temperature < temp1)
+  then
+  	arduino.setGableState(GableState.Degrees30);
+end
+
+rule "humidityMax_2"
+  when
+  	$readOut : GableParamsDto( humidity > humMax,  temperature >= temp1, temperature < temp2)
+  then
+  	arduino.setGableState(GableState.Degrees60);
+end
+
+rule "humidityMax_3"
+  when
+  	$readOut : GableParamsDto( humidity > humMax, temperature >= temp2)
+  then
+  	arduino.setGableState(GableState.Open);
+end
+
+rule "humidityMax_4"
+  when
+  	$readOut : GableParamsDto( humidity > humMax, temperature < tempMin)
+  then
+  	arduino.setGableState(GableState.Degrees30);
+end
+
+rule "humidityMin_1"
+  when
+  	$readOut : GableParamsDto( humidity <= humMax,  temperature >= tempMin, temperature < temp1)
+  then
+  	arduino.setGableState(GableState.Close);
+end
+
+rule "humidityMin_2"
+  when
+  	$readOut : GableParamsDto( humidity <= humMax, temperature >= temp1, temperature < temp2)
+  then
+  	arduino.setGableState(GableState.Degrees30);
+end
+
+rule "humidityMin_3"
+  when
+  	$readOut : GableParamsDto( humidity <= humMax, temperature >= temp2, temperature < tempMax)
+  then
+  	arduino.setGableState(GableState.Degrees60);
+end
+
+rule "humidityMin_4"
+  when
+  	$readOut : GableParamsDto( humidity <= humMax, temperature >= tempMax)
+  then
+  	arduino.setGableState(GableState.Open);
+end
+
+rule "humidityMin_5"
+  when
+  	$readOut : GableParamsDto( humidity <= humMax, temperature < tempMin)
+  then
+  	arduino.setGableState(GableState.Close);
+end

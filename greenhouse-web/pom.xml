@@ -11,6 +11,7 @@
 		<vaadin.version>7.6.3</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<jarduino.version>0.1.7-SNAPSHOT</jarduino.version>
+		<runtime.version>6.4.0.Final</runtime.version>
 	</properties>
 
 	<!-- Профили сборки. -->
@@ -178,11 +179,11 @@
 		<!-- <artifactId>jackson-databind</artifactId> -->
 		<!-- <version>2.9.0.pr3</version> -->
 		<!-- </dependency> -->
-		<dependency>
-			<groupId>org.scream3r</groupId>
-			<artifactId>jssc</artifactId>
-			<version>2.8.0</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.scream3r</groupId> -->
+<!-- 			<artifactId>jssc</artifactId> -->
+<!-- 			<version>2.8.0</version> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>javax.enterprise</groupId>
@@ -218,6 +219,27 @@
 			<groupId>net.redhogs.cronparser</groupId>
 			<artifactId>cron-parser-core</artifactId>
 			<version>2.10-SNAPSHOT</version>
+		</dependency>
+		<!-- Drools -->
+		<dependency>
+			<groupId>org.kie</groupId>
+			<artifactId>kie-api</artifactId>
+			<version>${runtime.version}</version>
+		</dependency>
+		<dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-ci</artifactId>
+            <version>${runtime.version}</version>
+         </dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+			<version>${runtime.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-compiler</artifactId>
+			<version>${runtime.version}</version>
 		</dependency>
 	</dependencies>
 </project>
