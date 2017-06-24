@@ -24,6 +24,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.sintef.jarduino.DigitalPin;
 import org.sintef.jarduino.DigitalState;
 import org.sintef.jarduino.InvalidPinTypeException;
 import org.slf4j.Logger;
@@ -142,17 +143,12 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		synchronized (LOCK) {
 			if (arduino == null)
 				return -1;
+			String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.TEMP, 5000);
 			try {
-				String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.TEMP, 5000);
-				try {
-					return round(Float.parseFloat(value), 1);
-				} catch (Exception e) {
-					return -1;
-				}
-			} catch (InvalidPinTypeException e) {
-				LOG.error(e.getMessage());
+				return round(Float.parseFloat(value), 1);
+			} catch (Exception e) {
+				return -1;
 			}
-			return -1;
 		}
 	}
 
@@ -161,17 +157,12 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		synchronized (LOCK) {
 			if (arduino == null)
 				return -1;
+			String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.HUM, 5000);
 			try {
-				String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.HUM, 5000);
-				try {
-					return round(Float.parseFloat(value), 1);
-				} catch (Exception e) {
-					return -1;
-				}
-			} catch (InvalidPinTypeException e) {
-				LOG.error(e.getMessage());
+				return round(Float.parseFloat(value), 1);
+			} catch (Exception e) {
+				return -1;
 			}
-			return -1;
 		}
 	}
 
@@ -195,25 +186,21 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	private GableState findGable() {
 		synchronized (LOCK) {
 			if (arduino != null) {
-				try {
-					DigitalState closeSignalState = arduino.digitalRead(stateClose);
-					if (closeSignalState != null && closeSignalState.equals(HIGH)) {
-						return GableState.Close;
-					}
-					DigitalState degrees30SignalState = arduino.digitalRead(state30);
-					if (degrees30SignalState != null && degrees30SignalState.equals(HIGH)) {
-						return GableState.Degrees30;
-					}
-					DigitalState degrees60SignalState = arduino.digitalRead(state60);
-					if (degrees60SignalState != null && degrees60SignalState.equals(HIGH)) {
-						return GableState.Degrees60;
-					}
-					DigitalState openSignalState = arduino.digitalRead(stateOpen);
-					if (openSignalState != null && openSignalState.equals(HIGH)) {
-						return GableState.Open;
-					}
-				} catch (InvalidPinTypeException e) {
-					e.printStackTrace();
+				DigitalState closeSignalState = arduino.digitalRead(stateClose);
+				if (closeSignalState != null && closeSignalState.equals(HIGH)) {
+					return GableState.Close;
+				}
+				DigitalState degrees30SignalState = arduino.digitalRead(state30);
+				if (degrees30SignalState != null && degrees30SignalState.equals(HIGH)) {
+					return GableState.Degrees30;
+				}
+				DigitalState degrees60SignalState = arduino.digitalRead(state60);
+				if (degrees60SignalState != null && degrees60SignalState.equals(HIGH)) {
+					return GableState.Degrees60;
+				}
+				DigitalState openSignalState = arduino.digitalRead(stateOpen);
+				if (openSignalState != null && openSignalState.equals(HIGH)) {
+					return GableState.Open;
 				}
 			}
 			return null;
@@ -269,40 +256,38 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	private void sendStopSignal() {
 		if (arduino == null)
 			return;
-		try {
-			arduino.digitalWrite(stopSignal, LOW);
-			arduino.delay(1000);
-			arduino.digitalWrite(stopSignal, HIGH);
-			arduino.delay(1000);
-		} catch (InvalidPinTypeException e) {
-			e.printStackTrace();
-		}
+		arduino.digitalWrite(stopSignal, LOW);
+		arduino.delay(1000);
+		arduino.digitalWrite(stopSignal, HIGH);
+		arduino.delay(1000);
 	}
 
 	private void sendOpenSignal() {
 		if (arduino == null)
 			return;
-		try {
-			sendStopSignal();
-			arduino.digitalWrite(openSignal, LOW);
-			arduino.delay(1000);
-			arduino.digitalWrite(openSignal, HIGH);
-		} catch (InvalidPinTypeException e) {
-			e.printStackTrace();
-		}
+		sendStopSignal();
+		arduino.digitalWrite(openSignal, LOW);
+		arduino.delay(1000);
+		arduino.digitalWrite(openSignal, HIGH);
 	}
 
 	private void sendCloseSignal() {
 		if (arduino == null)
 			return;
-		try {
-			sendStopSignal();
-			arduino.digitalWrite(closeSignal, LOW);
-			arduino.delay(1000);
-			arduino.digitalWrite(closeSignal, HIGH);
-		} catch (InvalidPinTypeException e) {
-			e.printStackTrace();
-		}
+		sendStopSignal();
+		arduino.digitalWrite(closeSignal, LOW);
+		arduino.delay(1000);
+		arduino.digitalWrite(closeSignal, HIGH);
+	}
+
+	@Override
+	public void openIrrigationCountur(DigitalPin pin) {
+		arduino.digitalWrite(pin, HIGH);
+	}
+
+	@Override
+	public void closeIrrigationCountur(DigitalPin pin) {
+		arduino.digitalWrite(pin, LOW);
 	}
 
 	@Override

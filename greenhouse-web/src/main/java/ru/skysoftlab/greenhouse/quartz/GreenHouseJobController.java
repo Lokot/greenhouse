@@ -1,8 +1,10 @@
 package ru.skysoftlab.greenhouse.quartz;
 
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.DATA_INTERVAL;
+import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
+
+import java.util.List;
 
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -18,6 +20,8 @@ import org.apache.openejb.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
+import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
@@ -31,20 +35,16 @@ import ru.skysoftlab.skylibs.quartz.JobController;
  */
 @Startup
 @Singleton
-public class GreenHouseJobController extends JobController implements
-		ConfigurationListener {
+public class GreenHouseJobController extends JobController implements ConfigurationListener {
 
 	private Logger LOG = LoggerFactory.getLogger(GreenHouseJobController.class);
 
 	private static final String SYSTEM_GROUP = "system-jobs";
 
-	private final TriggerKey tempTK = TriggerKey.triggerKey(
-			"scan-temp-startUp", SYSTEM_GROUP);
-	private final TriggerKey gableTK = TriggerKey.triggerKey(
-			"scan-gable-startUp", SYSTEM_GROUP);
+	private final TriggerKey tempTK = TriggerKey.triggerKey("scan-temp-startUp", SYSTEM_GROUP);
+	private final TriggerKey gableTK = TriggerKey.triggerKey("scan-gable-startUp", SYSTEM_GROUP);
 
-	private final JobKey gableJobKey = JobKey
-			.jobKey("scan-gable", SYSTEM_GROUP);
+	private final JobKey gableJobKey = JobKey.jobKey("scan-gable", SYSTEM_GROUP);
 
 	@Inject
 	@AppProperty(SCAN_INTERVAL)
@@ -58,19 +58,22 @@ public class GreenHouseJobController extends JobController implements
 	@AppProperty(AUTO)
 	private Boolean auto;
 
+	@Inject
+	private DataBaseProvider baseProvider;
+
 	@Override
 	protected void startJobs() {
 		startScanTempJob();
 		if (auto) {
 			startGableJob();
 		}
+		startIrrigationJobs();
 	}
 
 	private void startScanTempJob() {
 		try {
 			JobKey scanJobKey = JobKey.jobKey("scan-readout", SYSTEM_GROUP);
-			JobDetail scanJob = JobBuilder.newJob(ScanTempJob.class)
-					.withIdentity(scanJobKey).build();
+			JobDetail scanJob = JobBuilder.newJob(ScanTempJob.class).withIdentity(scanJobKey).build();
 			Trigger trigger = createCronTrigger(tempTK, scanInterval, null);
 			getScheduler().scheduleJob(scanJob, trigger);
 		} catch (SchedulerException e) {
@@ -80,12 +83,29 @@ public class GreenHouseJobController extends JobController implements
 
 	private void startGableJob() {
 		try {
-			JobDetail scanJob = JobBuilder.newJob(GableJob.class)
-					.withIdentity(gableJobKey).build();
+			JobDetail scanJob = JobBuilder.newJob(GableJob.class).withIdentity(gableJobKey).build();
 			Trigger trigger = createCronTrigger(gableTK, dataInterval, null);
 			getScheduler().scheduleJob(scanJob, trigger);
 		} catch (SchedulerException e) {
 			LOG.error("Error create scan temp job", e);
+		}
+	}
+
+	private void startIrrigationJobs() {
+		// TODO перезапуск заданий полива
+		List<IrrigationCountur> counturs = baseProvider.getIrigationCounters();
+		for (IrrigationCountur irrigationCountur : counturs) {
+			try {
+				JobKey jobKey = JobKey.jobKey("irrigation-" + irrigationCountur.getName(), SYSTEM_GROUP);
+				TriggerKey irrigationTK = TriggerKey.triggerKey("irrigation-startUp-" + irrigationCountur.getName(),
+						SYSTEM_GROUP);
+				JobDetail scanJob = JobBuilder.newJob(IrrigetionJob.class).withIdentity(jobKey).build();
+				scanJob.getJobDataMap().put(IrrigetionJob.CONTUR, irrigationCountur);
+				Trigger trigger = createCronTrigger(irrigationTK, irrigationCountur.getCronExpr(), null);
+				getScheduler().scheduleJob(scanJob, trigger);
+			} catch (SchedulerException e) {
+				LOG.error("Error create scan temp job", e);
+			}
 		}
 	}
 
@@ -99,8 +119,7 @@ public class GreenHouseJobController extends JobController implements
 	@Override
 	public void editIntervalEvent(@Observes SystemConfigEvent event) {
 		String newScanInterval = event.getParam(SCAN_INTERVAL);
-		if (newScanInterval != null && newScanInterval.length() > 0
-				&& !newScanInterval.equals(scanInterval)) {
+		if (newScanInterval != null && newScanInterval.length() > 0 && !newScanInterval.equals(scanInterval)) {
 			scanInterval = newScanInterval;
 			try {
 				rescheduleJobNow(tempTK, scanInterval);
@@ -110,12 +129,11 @@ public class GreenHouseJobController extends JobController implements
 			}
 		}
 		String newDataInterval = event.getParam(DATA_INTERVAL);
-		if (newDataInterval != null && newDataInterval.length() > 0
-				&& !newDataInterval.equals(scanInterval)) {
+		if (newDataInterval != null && newDataInterval.length() > 0 && !newDataInterval.equals(scanInterval)) {
 			dataInterval = newDataInterval;
 			try {
-				if(getScheduler().checkExists(gableJobKey)){
-					rescheduleJobNow(gableTK, dataInterval);	
+				if (getScheduler().checkExists(gableJobKey)) {
+					rescheduleJobNow(gableTK, dataInterval);
 				}
 				LOG.info("RescheduleGableJob");
 			} catch (SchedulerException e) {
@@ -127,8 +145,8 @@ public class GreenHouseJobController extends JobController implements
 			auto = newAuto;
 			if (auto) {
 				try {
-					if(!getScheduler().checkExists(gableJobKey)){
-						startGableJob();	
+					if (!getScheduler().checkExists(gableJobKey)) {
+						startGableJob();
 					}
 				} catch (SchedulerException e) {
 					LOG.error("Error checkExists gable job", e);
@@ -142,5 +160,9 @@ public class GreenHouseJobController extends JobController implements
 			}
 		}
 	}
+	
+//	public void editIrrigationCountur(@Observes IrrigationCountur event) {
+//		
+//	}
 
 }

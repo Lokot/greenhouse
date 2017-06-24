@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import ru.skysoftlab.greenhouse.dto.ReadOutDto;
 import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.greenhouse.jpa.entitys.DateConfig;
+import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.greenhouse.jpa.entitys.Readout;
 import ru.skysoftlab.skylibs.entitys.properties.api.PropertyProvider;
 
@@ -73,24 +74,15 @@ public class DataBaseProvider implements Serializable {
 	public void saveConfig(SystemConfigDto dto) throws Exception {
 		try {
 			utx.begin();
-			propertyProvider.setStringValue(SCAN_INTERVAL,
-					dto.getScanInterval(), "Интервал сканирования (минуты)");
-			propertyProvider.setStringValue(DATA_INTERVAL,
-					dto.getScanInterval(), "Управления коньком (минуты)");
-			propertyProvider.setStringValue(SERIAL_PORT, dto.getSerialPort(),
-					"Порт для связи с Arduino");
-			propertyProvider.setFloatValue(TEMP_MAX, dto.getTempMax(),
-					"Максимальная температура");
-			propertyProvider.setFloatValue(TEMP_2, dto.getTemp2(),
-					"Температура 2");
-			propertyProvider.setFloatValue(TEMP_1, dto.getTemp1(),
-					"Температура 1");
-			propertyProvider.setFloatValue(TEMP_MIN, dto.getTempMin(),
-					"Минимальная температура");
-			propertyProvider.setFloatValue(HUM_MAX, dto.getHumMax(),
-					"Максимальная влажность");
-			propertyProvider.setBooleanValue(AUTO, dto.getAuto(),
-					"Автоматический режим");
+			propertyProvider.setStringValue(SCAN_INTERVAL, dto.getScanInterval(), "Интервал сканирования (минуты)");
+			propertyProvider.setStringValue(DATA_INTERVAL, dto.getScanInterval(), "Управления коньком (минуты)");
+			propertyProvider.setStringValue(SERIAL_PORT, dto.getSerialPort(), "Порт для связи с Arduino");
+			propertyProvider.setFloatValue(TEMP_MAX, dto.getTempMax(), "Максимальная температура");
+			propertyProvider.setFloatValue(TEMP_2, dto.getTemp2(), "Температура 2");
+			propertyProvider.setFloatValue(TEMP_1, dto.getTemp1(), "Температура 1");
+			propertyProvider.setFloatValue(TEMP_MIN, dto.getTempMin(), "Минимальная температура");
+			propertyProvider.setFloatValue(HUM_MAX, dto.getHumMax(), "Максимальная влажность");
+			propertyProvider.setBooleanValue(AUTO, dto.getAuto(), "Автоматический режим");
 			// propertyProvider.setDoubleValue(ILLUM_MIN, dto.getIllumMin(),
 			// "Минимальная освещенность");
 			em.persist(new DateConfig(dto));
@@ -104,8 +96,7 @@ public class DataBaseProvider implements Serializable {
 	}
 
 	public DateConfig getMaxVersionConfig() throws NoResultException {
-		TypedQuery<DateConfig> query = em.createNamedQuery(
-				"DateConfig.byMaxDate", DateConfig.class);
+		TypedQuery<DateConfig> query = em.createNamedQuery("DateConfig.byMaxDate", DateConfig.class);
 		DateConfig results = query.getSingleResult();
 		return results;
 	}
@@ -117,8 +108,7 @@ public class DataBaseProvider implements Serializable {
 	 * @return
 	 */
 	public List<Readout> getDateTemp(Date date) {
-		TypedQuery<Readout> query = em.createNamedQuery("Readout.byDate",
-				Readout.class);
+		TypedQuery<Readout> query = em.createNamedQuery("Readout.byDate", Readout.class);
 		query.setParameter("date", LocalDate.fromDateFields(date));
 		List<Readout> results = query.getResultList();
 		return results;
@@ -137,14 +127,11 @@ public class DataBaseProvider implements Serializable {
 		int year = c.get(Calendar.YEAR);
 		int month = c.get(Calendar.MONTH);
 		Query query = em.createNamedQuery("Readout.monthByDays");
-		query.setParameter(1,
-				new GregorianCalendar(year, month, 1, 0, 0).getTime());
+		query.setParameter(1, new GregorianCalendar(year, month, 1, 0, 0).getTime());
 		query.setParameter(
 				2,
-				new GregorianCalendar(year, month, c
-						.getActualMaximum(Calendar.DAY_OF_MONTH), c
-						.getActualMaximum(Calendar.HOUR_OF_DAY), 59, 59)
-						.getTime());
+				new GregorianCalendar(year, month, c.getActualMaximum(Calendar.DAY_OF_MONTH), c
+						.getActualMaximum(Calendar.HOUR_OF_DAY), 59, 59).getTime());
 		List<Object[]> resultList = query.getResultList();
 		List<ReadOutDto> results = new ArrayList<>();
 		for (Object[] obj : resultList) {
@@ -170,10 +157,10 @@ public class DataBaseProvider implements Serializable {
 		c.setTime(date);
 		int year = c.get(Calendar.YEAR);
 		Query query = em.createNamedQuery("Readout.yearByMonth");
-		query.setParameter(1,
-				new GregorianCalendar(year, Calendar.JANUARY, 1).getTime());
-		query.setParameter(2, new GregorianCalendar(year, Calendar.DECEMBER,
-				31, c.getActualMaximum(Calendar.HOUR_OF_DAY), 59, 59).getTime());
+		query.setParameter(1, new GregorianCalendar(year, Calendar.JANUARY, 1).getTime());
+		query.setParameter(2,
+				new GregorianCalendar(year, Calendar.DECEMBER, 31, c.getActualMaximum(Calendar.HOUR_OF_DAY), 59, 59)
+						.getTime());
 		List<Object[]> resultList = query.getResultList();
 		List<ReadOutDto> results = new ArrayList<>();
 		for (Object[] obj : resultList) {
@@ -206,5 +193,11 @@ public class DataBaseProvider implements Serializable {
 				LOG.error("Save config error");
 			}
 		}
+	}
+
+	public List<IrrigationCountur> getIrigationCounters() {
+		TypedQuery<IrrigationCountur> query = em.createNamedQuery("IrrigationCountur.getAll", IrrigationCountur.class);
+		List<IrrigationCountur> results = query.getResultList();
+		return results;
 	}
 }

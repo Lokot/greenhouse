@@ -1,11 +1,16 @@
 package ru.skysoftlab.greenhouse.ui;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
+import org.joda.time.Duration;
+
+import ru.skysoftlab.greenhouse.common.CronExprTextConverter;
+import ru.skysoftlab.greenhouse.common.DurationTextConverter;
 import ru.skysoftlab.greenhouse.jpa.IrrigationCounturEntityProviderBean;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.greenhouse.web.MainMenu;
@@ -33,12 +38,28 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 
 	@Inject
 	private IrrigationCounturEntityProviderBean entityProvider;
-	
+
 	@Inject
 	private IrrigationForm form;
 
 	public IrrigationView() {
 		super(IrrigationCountur.class);
+	}
+
+	@Override
+	protected void configureComponents() {
+		super.configureComponents();
+		getGrid().getColumn("cronExpr").setConverter(new CronExprTextConverter());
+		getGrid().getColumn("duration").setConverter(new DurationTextConverter() {
+
+			private static final long serialVersionUID = -9001409719898343333L;
+
+			@Override
+			public String convertToPresentation(Duration value, Class<? extends String> targetType, Locale locale)
+					throws com.vaadin.data.util.converter.Converter.ConversionException {
+				return super.convertToPresentation(value, targetType, locale) + " мин.";
+			}
+        });
 	}
 
 	@Override

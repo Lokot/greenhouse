@@ -1,9 +1,13 @@
 package ru.skysoftlab.greenhouse.ui;
 
+import java.text.ParseException;
+import java.util.Locale;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
 import jssc.SerialPortList;
+import net.redhogs.cronparser.CronExpressionDescriptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +29,8 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -46,8 +52,7 @@ import com.vaadin.ui.VerticalLayout;
 @CDIView(Navigation.SYSTEM)
 @MainMenuItem(name = "Настройки", order = MainMenu.CONFIG, hasChilds = false)
 @RolesAllowed({ RolesList.ADMIN })
-public class SystemConfig extends BaseMenuView implements Button.ClickListener,
-		ValueChangeListener {
+public class SystemConfig extends BaseMenuView implements Button.ClickListener, ValueChangeListener {
 
 	private static final long serialVersionUID = 2039928987238266962L;
 
@@ -62,13 +67,13 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener,
 	private BeanFieldGroup<SystemConfigDto> formFieldBindings;
 
 	@Inject
-//	@RequestScoped
+	// @RequestScoped
 	private SystemConfigDto dto;
 
-	private TextField scanInterval = new TextField(
-			"Интервал сканирования (cron):");
-	private TextField dataInterval = new TextField(
-			"Интервал получения данных (cron):");
+	private TextField scanInterval = new TextField("Интервал сканирования (cron):");
+	private Label scanIntervalLabel = new Label();
+	private TextField dataInterval = new TextField("Интервал получения данных (cron):");
+	private Label dataIntervalLabel = new Label();
 	private OptionGroup auto = new OptionGroup("Управление коньком:");
 	private ComboBox serialPort = new ComboBox("Порт для связи с Arduino:");
 	private TextField tempMax = new TextField("Максимальная температура (°C):");
@@ -84,23 +89,42 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener,
 	protected void configureComponents() {
 		CronGenExt ext = new CronGenExt();
 		ext.extend(scanInterval);
+		scanInterval.addTextChangeListener(new TextChangeListener() {
+
+			private static final long serialVersionUID = 6560987133628416549L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				scanIntervalLabel.setCaption(cronToString(event.getText()));
+			}
+		});
+		scanIntervalLabel.setCaption(cronToString(dto.getScanInterval()));
 		CronGenExt ext1 = new CronGenExt();
 		ext1.extend(dataInterval);
+		dataInterval.addTextChangeListener(new TextChangeListener() {
+
+			private static final long serialVersionUID = 6560987133628416549L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				dataIntervalLabel.setCaption(cronToString(event.getText()));
+			}
+		});
+		dataIntervalLabel.setCaption(cronToString(dto.getDataInterval()));
 		// illumMin.setMin(0);
 		// illumMin.setMax(1000);
 		// illumMin.setWidth("300px");
 		serialPort.removeAllItems();
 		serialPort.addItems(SerialPortList.getPortNames());
 		auto.removeAllItems();
-		auto.addItems(new VaadinItemDto(true, "Автоматическое"), new VaadinItemDto(false,
-				"Ручное"));
+		auto.addItems(new VaadinItemDto(true, "Автоматическое"), new VaadinItemDto(false, "Ручное"));
 		auto.setConverter(new CustomAutoGableConverter());
 	}
 
 	@Override
 	protected void buildLayout() {
 		Label title = new Label("Системные настройки");
-		FormLayout form = new FormLayout(scanInterval, dataInterval, auto,
+		FormLayout form = new FormLayout(scanInterval, scanIntervalLabel, dataInterval, dataIntervalLabel, auto,
 				serialPort, tempMax, temp2, temp1, tempMin, humMax, save);
 		formFieldBindings = BeanFieldGroup.bindFieldsBuffered(dto, this);
 		VerticalLayout left = new VerticalLayout(title, form);
@@ -123,8 +147,7 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener,
 				dataBaseProvider.saveConfig(dto);
 				// событие изменения настроек
 				systemEvent.fire(new SystemConfigEvent(dto.getDataForEvent()));
-				Notification.show("Настройки сохранены.",
-						Type.TRAY_NOTIFICATION);
+				Notification.show("Настройки сохранены.", Type.TRAY_NOTIFICATION);
 			} catch (Exception e) {
 				String msg = "System configuration save error";
 				LOG.error(msg, e);
@@ -138,6 +161,15 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener,
 	@Override
 	public void valueChange(ValueChangeEvent event) {
 
+	}
+
+	private String cronToString(String cronExpr) {
+		try {
+			return CronExpressionDescriptor.getDescription(cronExpr, new Locale("ru"));
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+			return "";
+		}
 	}
 
 }

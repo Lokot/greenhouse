@@ -2,6 +2,8 @@ package ru.skysoftlab.greenhouse.arduino;
 
 import java.io.Serializable;
 
+import org.sintef.jarduino.DigitalPin;
+
 import ru.skysoftlab.greenhouse.common.GableState;
 
 /**
@@ -23,5 +25,9 @@ public interface IArduino extends Serializable {
 	public void setGableState(GableState gableState);
 
 	public boolean isConnected();
+
+	public void openIrrigationCountur(DigitalPin pin);
+
+	public void closeIrrigationCountur(DigitalPin pin);
 	
 }

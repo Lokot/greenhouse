@@ -12,17 +12,23 @@ public class DurationTextConverter implements Converter<String, Duration> {
 	private static final long serialVersionUID = 2570832993397857818L;
 
 	@Override
-	public Duration convertToModel(String value,
-			Class<? extends Duration> targetType, Locale locale)
+	public Duration convertToModel(String value, Class<? extends Duration> targetType, Locale locale)
 			throws com.vaadin.data.util.converter.Converter.ConversionException {
-		return Duration.standardMinutes(Long.valueOf(value));
+		if (value != null && value.length() > 0) {
+			return Duration.standardMinutes(Long.valueOf(value));
+		} else {
+			return Duration.standardMinutes(0);
+		}
 	}
 
 	@Override
-	public String convertToPresentation(Duration value,
-			Class<? extends String> targetType, Locale locale)
+	public String convertToPresentation(Duration value, Class<? extends String> targetType, Locale locale)
 			throws com.vaadin.data.util.converter.Converter.ConversionException {
-		return String.valueOf(value.getStandardSeconds()/DateTimeConstants.SECONDS_PER_MINUTE);
+		if (value != null) {
+			return String.valueOf(value.getStandardSeconds() / DateTimeConstants.SECONDS_PER_MINUTE);
+		} else {
+			return "";
+		}
 	}
 
 	@Override

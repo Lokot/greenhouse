@@ -25,25 +25,24 @@ public class IrrigationForm extends AbstractForm<IrrigationCountur> {
 
 	private static final long serialVersionUID = 2372643403143137631L;
 
-	private TextField cronExpr;
-	private TextField name;
-	private TextField duration;
-	private ComboBox pin;
-	
-	@Override
-	protected void configureComponents() {
+	private TextField cronExpr = new TextField("Период: ");
+	private TextField name = new TextField("Контур: ");
+	private TextField duration = new TextField("Длительность (мин.): ");
+	private ComboBox pin = new ComboBox("Пин: ", EnumSet.allOf(DigitalPin.class));
+
+	public IrrigationForm() {
 		CronGenExt ext = new CronGenExt();
 		ext.extend(cronExpr);
 		duration.setConverter(new DurationTextConverter());
-		super.configureComponents();
 	}
-	
+
 	@Override
 	protected Collection<? extends Component> getInputs() {
-		cronExpr = new TextField("Период: ");
-		duration = new TextField("Длительность (мин.): ");
-		name = new TextField("Контур: ");
-		pin = new ComboBox("Пин: ", EnumSet.allOf(DigitalPin.class));
+		// cronExpr = new TextField("Период: ");
+		// duration = new TextField("Длительность (мин.): ");
+		// name = new TextField("Контур: ");
+		// pin = new ComboBox("Пин: ", EnumSet.allOf(DigitalPin.class));
+
 		Collection<Component> rv = new ArrayList<>();
 		rv.add(cronExpr);
 		rv.add(duration);
