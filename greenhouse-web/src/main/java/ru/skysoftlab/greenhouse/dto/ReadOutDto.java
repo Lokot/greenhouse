@@ -1,13 +1,9 @@
 package ru.skysoftlab.greenhouse.dto;
 
 
-public class ReadOutDto {
+public class ReadOutDto extends ReadOutActionDto {
 
 	private Integer dayOrMonth;
-
-	private Float temperature;
-	private Float humidity;
-	private Integer illumination;
 
 	public ReadOutDto() {
 		super();
@@ -15,11 +11,8 @@ public class ReadOutDto {
 
 	public ReadOutDto(Integer dayOrMonth, Float temperature, Float humidity,
 			Integer illumination) {
-		super();
+		super(temperature, humidity, illumination);
 		this.dayOrMonth = dayOrMonth;
-		this.temperature = temperature;
-		this.humidity = humidity;
-		this.illumination = illumination;
 	}
 
 	public Integer getDayOrMonth() {
@@ -28,30 +21,6 @@ public class ReadOutDto {
 
 	public void setDayOrMonth(Integer dayOrMonth) {
 		this.dayOrMonth = dayOrMonth;
-	}
-
-	public Float getTemperature() {
-		return temperature;
-	}
-
-	public void setTemperature(Float temperature) {
-		this.temperature = temperature;
-	}
-
-	public Float getHumidity() {
-		return humidity;
-	}
-
-	public void setHumidity(Float humidity) {
-		this.humidity = humidity;
-	}
-
-	public Integer getIllumination() {
-		return illumination;
-	}
-
-	public void setIllumination(Integer illumination) {
-		this.illumination = illumination;
 	}
 
 }
