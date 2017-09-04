@@ -66,6 +66,11 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 	protected String getNewButtonLabel() {
 		return "Новый контур";
 	}
+	
+	@Override
+	protected String getDelButtonLabel() {
+		return "Удалить контур";
+	}
 
 	@Override
 	protected Object[] getRemoveColumn() {

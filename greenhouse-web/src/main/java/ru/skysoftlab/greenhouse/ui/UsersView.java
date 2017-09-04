@@ -14,5 +14,5 @@ import com.vaadin.cdi.CDIView;
 public class UsersView extends UserView {
 
 	private static final long serialVersionUID = 2125858000767147430L;
-	
+
 }
