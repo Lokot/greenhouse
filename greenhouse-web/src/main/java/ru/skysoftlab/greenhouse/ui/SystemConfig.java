@@ -1,28 +1,12 @@
 package ru.skysoftlab.greenhouse.ui;
 
-import java.text.ParseException;
 import java.util.Locale;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
-import net.redhogs.cronparser.CronExpressionDescriptor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ru.skysoftlab.crongen.CronGenExt;
-import ru.skysoftlab.crongen.ParseCronGenComponent;
-import ru.skysoftlab.greenhouse.common.CustomAutoGableConverter;
-import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
-import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
-import ru.skysoftlab.greenhouse.web.MainMenu;
-import ru.skysoftlab.greenhouse.web.Navigation;
-import ru.skysoftlab.skylibs.events.SystemConfigEvent;
-import ru.skysoftlab.skylibs.security.RolesList;
-import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
-import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
-import ru.skysoftlab.skylibs.web.ui.BaseMenuView;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.vaadin.cdi.CDIView;
@@ -30,8 +14,6 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -44,6 +26,20 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import ru.skysoftlab.crongen.ParseCronGenComponent;
+import ru.skysoftlab.greenhouse.common.CustomAutoGableConverter;
+import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
+import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
+import ru.skysoftlab.greenhouse.web.MainMenu;
+import ru.skysoftlab.greenhouse.web.MainMenu.ConfigMenu;
+import ru.skysoftlab.greenhouse.web.Navigation;
+import ru.skysoftlab.skylibs.events.SystemConfigEvent;
+import ru.skysoftlab.skylibs.security.RolesList;
+import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
+import ru.skysoftlab.skylibs.web.annatations.MenuItemView;
+import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
+import ru.skysoftlab.skylibs.web.ui.BaseMenuView;
+
 /**
  * Системные настройки.
  * 
@@ -51,7 +47,8 @@ import com.vaadin.ui.VerticalLayout;
  *
  */
 @CDIView(Navigation.SYSTEM)
-@MainMenuItem(name = "Настройки", order = MainMenu.CONFIG, hasChilds = false)
+@MainMenuItem(name = "Настройки", order = MainMenu.CONFIG)
+@MenuItemView(name = "Конфигурация", order = ConfigMenu.CONFIG_CONFIG)
 @RolesAllowed({ RolesList.ADMIN })
 public class SystemConfig extends BaseMenuView implements Button.ClickListener, ValueChangeListener {
 

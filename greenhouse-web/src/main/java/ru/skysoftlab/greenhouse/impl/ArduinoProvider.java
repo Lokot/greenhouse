@@ -76,7 +76,11 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 			arduino.pinMode(stopSignal, OUTPUT);
 			arduino.pinMode(closeSignal, OUTPUT);
 		} catch (Exception e) {
-			Notification.show("Контроллер не найден на порту " + portName, Type.ERROR_MESSAGE);
+			try {
+				Notification.show("Контроллер не найден на порту " + portName, Type.ERROR_MESSAGE);
+			} catch (NullPointerException e1) {
+			}
+			LOG.error("Контроллер не найден на порту " + portName);
 			if (arduino != null) {
 				arduino.close();
 			}
@@ -108,8 +112,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * ru.skysoftlab.skylibs.events.ConfigurationListener#editIntervalEvent(
+	 * @see ru.skysoftlab.skylibs.events.ConfigurationListener#editIntervalEvent(
 	 * ru.skysoftlab.skylibs.events.SystemConfigEvent)
 	 */
 	@Override

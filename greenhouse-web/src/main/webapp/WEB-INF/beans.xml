@@ -2,5 +2,6 @@
 <beans>
 	<alternatives>
 		<class>ru.skysoftlab.skylibs.security.Authenticator</class>
+		<class>ru.skysoftlab.skylibs.security.JpaLoginProvider</class>
 	</alternatives>
 </beans>

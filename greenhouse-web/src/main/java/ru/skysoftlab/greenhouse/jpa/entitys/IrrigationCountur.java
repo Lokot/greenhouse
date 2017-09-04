@@ -18,8 +18,14 @@ import org.sintef.jarduino.DigitalPin;
 
 import ru.skysoftlab.skylibs.types.DurationUserType;
 
+/**
+ * Поливочный контур.
+ * 
+ * @author Lokot
+ *
+ */
 @Entity
-@TypeDefs({ @TypeDef(name = "durationType", typeClass = DurationUserType.class)})
+@TypeDefs({ @TypeDef(name = "durationType", typeClass = DurationUserType.class) })
 @NamedQuery(name = "IrrigationCountur.getAll", query = "SELECT e FROM IrrigationCountur e WHERE e.run=true")
 public class IrrigationCountur implements Serializable {
 
@@ -28,17 +34,17 @@ public class IrrigationCountur implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
 	private String cronExpr;
-	
+
 	@Type(type = "durationType")
 	private Duration duration;
-	
+
 	private String name;
-	
+
 	@Enumerated(EnumType.STRING)
 	private DigitalPin pin;
-	
+
 	private Boolean run;
 
 	public Long getId() {
@@ -80,7 +86,7 @@ public class IrrigationCountur implements Serializable {
 	public void setDuration(Duration duration) {
 		this.duration = duration;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

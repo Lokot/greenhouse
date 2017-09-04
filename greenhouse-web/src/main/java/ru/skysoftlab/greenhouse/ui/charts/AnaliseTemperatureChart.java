@@ -8,10 +8,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import ru.skysoftlab.greenhouse.common.AbstractChartBean;
-import ru.skysoftlab.greenhouse.dto.ReadOutDto;
-import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
-import ru.skysoftlab.greenhouse.ui.MainView;
 import at.downdrown.vaadinaddons.highchartsapi.model.Axis;
 import at.downdrown.vaadinaddons.highchartsapi.model.Axis.AxisType;
 import at.downdrown.vaadinaddons.highchartsapi.model.Axis.AxisValueType;
@@ -19,9 +15,12 @@ import at.downdrown.vaadinaddons.highchartsapi.model.ChartConfiguration;
 import at.downdrown.vaadinaddons.highchartsapi.model.ChartType;
 import at.downdrown.vaadinaddons.highchartsapi.model.MultipleAxis;
 import at.downdrown.vaadinaddons.highchartsapi.model.data.base.StringNomberData;
-import at.downdrown.vaadinaddons.highchartsapi.model.plotoptions.SplineChartPlotOptions;
 import at.downdrown.vaadinaddons.highchartsapi.model.series.HighChartsSeries;
 import at.downdrown.vaadinaddons.highchartsapi.model.series.SplineChartSeries;
+import ru.skysoftlab.greenhouse.common.AbstractChartBean;
+import ru.skysoftlab.greenhouse.dto.ReadOutDto;
+import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
+import ru.skysoftlab.greenhouse.ui.MainView;
 
 public class AnaliseTemperatureChart extends AbstractChartBean {
 
