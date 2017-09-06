@@ -14,6 +14,13 @@
 		<runtime.version>6.4.0.Final</runtime.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
+		</repository>
+	</repositories>
+
 	<!-- Профили сборки. -->
 	<profiles>
 		<!-- Профиль для TomEE версии. -->
@@ -165,6 +172,16 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-client</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>de.datenhahn.vaadin</groupId> -->
+<!-- 			<artifactId>componentrenderer</artifactId> -->
+<!-- 			<version>1.0.3</version> -->
+<!-- 		</dependency> -->
+		<dependency>
 			<groupId>org.sintef.jarduino</groupId>
 			<artifactId>org.sintef.jarduino.sensorread.protocol.addon</artifactId>
 			<version>${jarduino.version}</version>
@@ -179,12 +196,11 @@
 		<!-- <artifactId>jackson-databind</artifactId> -->
 		<!-- <version>2.9.0.pr3</version> -->
 		<!-- </dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.scream3r</groupId> -->
-<!-- 			<artifactId>jssc</artifactId> -->
-<!-- 			<version>2.8.0</version> -->
-<!-- 		</dependency> -->
-
+		<!-- <dependency> -->
+		<!-- <groupId>org.scream3r</groupId> -->
+		<!-- <artifactId>jssc</artifactId> -->
+		<!-- <version>2.8.0</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>javax.enterprise</groupId>
 			<artifactId>cdi-api</artifactId>
@@ -227,10 +243,10 @@
 			<version>${runtime.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-ci</artifactId>
-            <version>${runtime.version}</version>
-         </dependency>
+			<groupId>org.kie</groupId>
+			<artifactId>kie-ci</artifactId>
+			<version>${runtime.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
 			<artifactId>drools-core</artifactId>

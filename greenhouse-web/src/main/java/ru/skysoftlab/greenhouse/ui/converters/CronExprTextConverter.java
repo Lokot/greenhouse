@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.common;
+package ru.skysoftlab.greenhouse.ui.converters;
 
 import java.text.ParseException;
 import java.util.Locale;
@@ -22,7 +22,7 @@ public class CronExprTextConverter implements Converter<String, String> {
 			throws com.vaadin.data.util.converter.Converter.ConversionException {
 		if (value != null) {
 			try {
-				return CronExpressionDescriptor.getDescription(value, new Locale("ru"));
+				return CronExpressionDescriptor.getDescription(value, locale);
 			} catch (ParseException e) {
 				e.printStackTrace();
 				return value;

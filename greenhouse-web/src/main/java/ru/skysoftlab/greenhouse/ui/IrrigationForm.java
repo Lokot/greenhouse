@@ -5,10 +5,11 @@ import java.util.Collection;
 import java.util.EnumSet;
 
 import org.sintef.jarduino.DigitalPin;
+import org.vaadin.teemu.switchui.Switch;
 
 import ru.skysoftlab.crongen.CronGenExt;
-import ru.skysoftlab.greenhouse.common.DurationTextConverter;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
+import ru.skysoftlab.greenhouse.ui.converters.DurationStringConverter;
 import ru.skysoftlab.skylibs.web.ui.AbstractForm;
 
 import com.vaadin.ui.ComboBox;
@@ -29,25 +30,22 @@ public class IrrigationForm extends AbstractForm<IrrigationCountur> {
 	private TextField name = new TextField("Контур: ");
 	private TextField duration = new TextField("Длительность (мин.): ");
 	private ComboBox pin = new ComboBox("Пин: ", EnumSet.allOf(DigitalPin.class));
+	private Switch run = new Switch("Запуск: ");
 
 	public IrrigationForm() {
 		CronGenExt ext = new CronGenExt();
 		ext.extend(cronExpr);
-		duration.setConverter(new DurationTextConverter());
+		duration.setConverter(new DurationStringConverter());
 	}
 
 	@Override
 	protected Collection<? extends Component> getInputs() {
-		// cronExpr = new TextField("Период: ");
-		// duration = new TextField("Длительность (мин.): ");
-		// name = new TextField("Контур: ");
-		// pin = new ComboBox("Пин: ", EnumSet.allOf(DigitalPin.class));
-
 		Collection<Component> rv = new ArrayList<>();
 		rv.add(cronExpr);
 		rv.add(duration);
 		rv.add(name);
 		rv.add(pin);
+		rv.add(run);
 		return rv;
 	}
 

@@ -1,27 +1,25 @@
 package ru.skysoftlab.greenhouse.ui;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
-import org.joda.time.Duration;
+import com.vaadin.addon.jpacontainer.EntityProvider;
+import com.vaadin.cdi.CDIView;
+import com.vaadin.data.Container.Indexed;
 
-import ru.skysoftlab.greenhouse.common.CronExprTextConverter;
-import ru.skysoftlab.greenhouse.common.DurationTextConverter;
 import ru.skysoftlab.greenhouse.jpa.IrrigationCounturEntityProviderBean;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
+import ru.skysoftlab.greenhouse.ui.converters.CronExprTextConverter;
+import ru.skysoftlab.greenhouse.ui.converters.DurationTextConverter;
+import ru.skysoftlab.greenhouse.ui.renderers.SwitchRenderer;
 import ru.skysoftlab.greenhouse.web.MainMenu;
 import ru.skysoftlab.greenhouse.web.Navigation;
 import ru.skysoftlab.skylibs.security.RolesList;
 import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
 import ru.skysoftlab.skylibs.web.ui.AbstractGridView;
-
-import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.cdi.CDIView;
-import com.vaadin.data.Container.Indexed;
 
 /**
  * Управление устройствами.
@@ -47,26 +45,17 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 	}
 
 	@Override
-	protected void configureComponents() {
-		super.configureComponents();
-		getGrid().getColumn("cronExpr").setConverter(new CronExprTextConverter());
-		getGrid().getColumn("duration").setConverter(new DurationTextConverter() {
-
-			private static final long serialVersionUID = -9001409719898343333L;
-
-			@Override
-			public String convertToPresentation(Duration value, Class<? extends String> targetType, Locale locale)
-					throws com.vaadin.data.util.converter.Converter.ConversionException {
-				return super.convertToPresentation(value, targetType, locale) + " мин.";
-			}
-        });
+	protected void configureGrid() {
+		grid.getColumn("cronExpr").setConverter(new CronExprTextConverter());
+		grid.getColumn("duration").setConverter(new DurationTextConverter());
+		grid.getColumn("run").setRenderer(new SwitchRenderer());
 	}
 
 	@Override
 	protected String getNewButtonLabel() {
 		return "Новый контур";
 	}
-	
+
 	@Override
 	protected String getDelButtonLabel() {
 		return "Удалить контур";
@@ -79,7 +68,7 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 
 	@Override
 	protected Object[] getColumnOrder() {
-		return new String[] { "name", "cronExpr", "duration", "pin" };
+		return new String[] { "name", "cronExpr", "duration", "pin", "run" };
 	}
 
 	@Override
@@ -99,6 +88,7 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 		rv.put("cronExpr", "Периодичность");
 		rv.put("duration", "Продолжительность");
 		rv.put("pin", "Пин на Arduino");
+		rv.put("run", "Состояние");
 		return rv;
 	}
 

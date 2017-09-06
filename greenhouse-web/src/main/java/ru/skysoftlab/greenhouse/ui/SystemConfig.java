@@ -27,9 +27,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import ru.skysoftlab.crongen.ParseCronGenComponent;
-import ru.skysoftlab.greenhouse.common.CustomAutoGableConverter;
 import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
+import ru.skysoftlab.greenhouse.ui.converters.CustomAutoGableConverter;
 import ru.skysoftlab.greenhouse.web.MainMenu;
 import ru.skysoftlab.greenhouse.web.MainMenu.ConfigMenu;
 import ru.skysoftlab.greenhouse.web.Navigation;

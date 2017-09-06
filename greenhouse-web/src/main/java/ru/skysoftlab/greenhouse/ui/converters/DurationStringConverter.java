@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.common;
+package ru.skysoftlab.greenhouse.ui.converters;
 
 import java.util.Locale;
 
@@ -7,7 +7,7 @@ import org.joda.time.Duration;
 
 import com.vaadin.data.util.converter.Converter;
 
-public class DurationTextConverter implements Converter<String, Duration> {
+public class DurationStringConverter implements Converter<String, Duration> {
 
 	private static final long serialVersionUID = 2570832993397857818L;
 
