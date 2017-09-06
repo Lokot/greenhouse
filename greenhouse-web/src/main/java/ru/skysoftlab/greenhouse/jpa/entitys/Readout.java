@@ -24,8 +24,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 import ru.skysoftlab.greenhouse.common.GableState;
-import ru.skysoftlab.skylibs.types.LocalDateUserType;
-import ru.skysoftlab.skylibs.types.LocalTimeUserType;
+import ru.skysoftlab.skylibs.joda.types.LocalDateUserType;
+import ru.skysoftlab.skylibs.joda.types.LocalTimeUserType;
 
 /**
  * Показания датчиков.

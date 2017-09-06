@@ -142,29 +142,29 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	}
 
 	@Override
-	public float getTemperature() {
+	public Float getTemperature() {
 		synchronized (LOCK) {
 			if (arduino == null)
-				return -1;
+				return -1f;
 			String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.TEMP, 5000);
 			try {
 				return round(Float.parseFloat(value), 1);
 			} catch (Exception e) {
-				return -1;
+				return -1f;
 			}
 		}
 	}
 
 	@Override
-	public float getHumidity() {
+	public Float getHumidity() {
 		synchronized (LOCK) {
 			if (arduino == null)
-				return -1;
+				return -1f;
 			String value = arduino.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.HUM, 5000);
 			try {
 				return round(Float.parseFloat(value), 1);
 			} catch (Exception e) {
-				return -1;
+				return -1f;
 			}
 		}
 	}

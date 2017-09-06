@@ -10,11 +10,10 @@ import ru.skysoftlab.greenhouse.ui.charts.AnaliseTemperatureChart.AnaliseChartTy
 import ru.skysoftlab.greenhouse.web.MainMenu;
 import ru.skysoftlab.greenhouse.web.Navigation;
 import ru.skysoftlab.skylibs.security.RolesList;
+import ru.skysoftlab.skylibs.vaadin.highcharts.HighChart;
 import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
 import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
 import ru.skysoftlab.skylibs.web.ui.BaseMenuView;
-import at.downdrown.vaadinaddons.highchartsapi.HighChart;
-import at.downdrown.vaadinaddons.highchartsapi.exceptions.HighChartsException;
 
 import com.vaadin.cdi.CDIView;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -83,11 +82,12 @@ public class AnalitikChart extends BaseMenuView {
 	}
 	
 	private void redrawChart(){
-		try {
-			chart.redraw(tchart.getConfigWithSeries());
-		} catch (HighChartsException e) {
-			Notification.show(e.getMessage(), Type.TRAY_NOTIFICATION);
-		}
+		// TODO исправить
+//		try {
+//			chart.redraw(tchart.getConfigWithSeries());
+//		} catch (HighChartsException e) {
+//			Notification.show(e.getMessage(), Type.TRAY_NOTIFICATION);
+//		}
 	}
 
 	@Override

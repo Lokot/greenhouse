@@ -16,7 +16,7 @@ import org.hibernate.annotations.TypeDefs;
 import org.joda.time.Duration;
 import org.sintef.jarduino.DigitalPin;
 
-import ru.skysoftlab.skylibs.types.DurationUserType;
+import ru.skysoftlab.skylibs.joda.types.DurationUserType;
 
 /**
  * Поливочный контур.

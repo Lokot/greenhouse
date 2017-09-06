@@ -16,9 +16,9 @@ public interface IArduino extends Serializable {
 
 	public int getIllumination();
 
-	public float getTemperature();
+	public Float getTemperature();
 
-	public float getHumidity();
+	public Float getHumidity();
 	
 	public GableState getGableState();
 	

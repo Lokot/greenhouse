@@ -2,7 +2,7 @@ package ru.skysoftlab.greenhouse.common;
 
 import java.io.Serializable;
 
-import at.downdrown.vaadinaddons.highchartsapi.HighChart;
+import ru.skysoftlab.skylibs.vaadin.highcharts.HighChart;
 
 /**
  * Интерфейс бина с графиком.

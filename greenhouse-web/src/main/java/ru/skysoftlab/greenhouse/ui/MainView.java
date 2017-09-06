@@ -13,9 +13,8 @@ import ru.skysoftlab.greenhouse.ui.charts.TemperatureChart;
 import ru.skysoftlab.greenhouse.ui.components.GableStateSelector;
 import ru.skysoftlab.greenhouse.web.MainMenu;
 import ru.skysoftlab.skylibs.security.RolesList;
+import ru.skysoftlab.skylibs.vaadin.highcharts.HighChart;
 import ru.skysoftlab.skylibs.web.ui.BaseMenuView;
-import at.downdrown.vaadinaddons.highchartsapi.HighChart;
-import at.downdrown.vaadinaddons.highchartsapi.exceptions.HighChartsException;
 
 import com.vaadin.cdi.CDIView;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -27,8 +26,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -91,8 +88,7 @@ public class MainView extends BaseMenuView implements UIEvents.PollListener {
 	protected void buildLayout() {
 
 		HorizontalLayout bottomLayout = new HorizontalLayout();
-		HighChart[] charts = new HighChart[] { angularTempChart,
-				angularHumChart, angularIllumChart, angularGableChart };
+		HighChart[] charts = new HighChart[] { angularTempChart, angularHumChart, angularIllumChart, angularGableChart };
 
 		for (HighChart highChart : charts) {
 			highChart.setHeight(50, Unit.PERCENTAGE);
@@ -101,8 +97,7 @@ public class MainView extends BaseMenuView implements UIEvents.PollListener {
 		}
 		bottomLayout.setSizeFull();
 
-		VerticalLayout left = new VerticalLayout(selector, date, lineChart, updateMainChart,
-				bottomLayout);
+		VerticalLayout left = new VerticalLayout(selector, date, lineChart, updateMainChart, bottomLayout);
 		left.setSizeFull();
 		left.setComponentAlignment(selector, Alignment.TOP_CENTER);
 		left.setComponentAlignment(date, Alignment.MIDDLE_CENTER);
@@ -117,28 +112,20 @@ public class MainView extends BaseMenuView implements UIEvents.PollListener {
 	}
 
 	private void redrawMiain() {
-		try {
-			lineChart.redraw(mainChart.getConfigWithSeries());
-		} catch (HighChartsException e) {
-			Notification.show(e.getMessage(), Type.TRAY_NOTIFICATION);
-		}
+		lineChart.updateOptions(mainChart.getSeries());
 	}
-	
+
 	private void redrawOths() {
-		try {
-			angularTempChart.redraw(tempChart.getConfigWithSeries());
-			angularHumChart.redraw(humChart.getConfigWithSeries());
-			angularIllumChart.redraw(illumChart.getConfigWithSeries());
-			angularGableChart.redraw(gableChart.getConfigWithSeries());
-		} catch (HighChartsException e) {
-			Notification.show(e.getMessage(), Type.TRAY_NOTIFICATION);
-		}
+		angularTempChart.manipulateChart(tempChart.updateValue());
+		angularHumChart.manipulateChart(humChart.updateValue());
+		angularIllumChart.manipulateChart(illumChart.updateValue());
+		angularGableChart.manipulateChart(gableChart.updateValue());
 	}
 
 	@Override
 	public void poll(PollEvent event) {
-		if(updateMainChart.getValue()){
-			redrawMiain();	
+		if (updateMainChart.getValue()) {
+			redrawMiain();
 		}
 		redrawOths();
 	}
