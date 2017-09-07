@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.quartz;
+package ru.skysoftlab.greenhouse.quartz.jobs;
 
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.HUM_MAX;
@@ -37,18 +37,18 @@ import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 public class GableJob implements Job, ConfigurationListener {
 
 	private Logger LOG = LoggerFactory.getLogger(GableJob.class);
-	
+
 	private Boolean auto;
 
 	@Inject
 	private IArduino arduino;
-	
+
 	@Inject
 	private SystemConfigDto dto;
 
 	@Inject
 	@KSession("ksession-rules")
-	KieSession kSession;
+	private KieSession kSession;
 
 	@PostConstruct
 	public void init() {
@@ -60,12 +60,18 @@ public class GableJob implements Job, ConfigurationListener {
 		kSession.setGlobal(TEMP_MIN, dto.getTempMin());
 		kSession.setGlobal("arduino", arduino);
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.openejb.quartz.Job#execute(org.apache.openejb.quartz.
+	 * JobExecutionContext)
+	 */
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		synchronized (LOCK) {
 			LOG.info("Check params to gable " + context.getJobDetail().getKey());
-			if (auto && arduino.isConnected()) {
+			if (auto && arduino.isConnected() && !arduino.isGableMoved()) {
 				try {
 					LOG.info("Gable Auto Mode");
 					Float temperature = arduino.getTemperature();
@@ -83,8 +89,14 @@ public class GableJob implements Job, ConfigurationListener {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.skylibs.events.ConfigurationListener#configUpdated(ru.
+	 * skysoftlab.skylibs.events.SystemConfigEvent)
+	 */
 	@Override
-	public void editIntervalEvent(@Observes SystemConfigEvent event) {
+	public void configUpdated(@Observes SystemConfigEvent event) {
 		Float tempMax = event.getParam(TEMP_MAX);
 		if (tempMax != null) {
 			kSession.setGlobal(TEMP_MAX, tempMax);

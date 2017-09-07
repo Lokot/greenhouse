@@ -22,6 +22,8 @@ public interface IArduino extends Serializable {
 	
 	public GableState getGableState();
 	
+	public boolean isGableMoved();
+	
 	public void setGableState(GableState gableState);
 
 	public boolean isConnected();

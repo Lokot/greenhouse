@@ -23,10 +23,12 @@ import com.vaadin.ui.renderers.ClickableRenderer;
  * CheckboxRenderer that supports updating data on the server when checkbox is
  * clicked.
  */
+@SuppressWarnings("serial")
 public class CheckboxRenderer extends ClickableRenderer<Boolean> {
 	public CheckboxRenderer() {
 		super(Boolean.class, null);
 		addClickListener(new RendererClickListener() {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
 			public void click(RendererClickEvent event) {
 				System.err.println("Click event from client!");

@@ -7,14 +7,14 @@ import java.util.EnumSet;
 import org.sintef.jarduino.DigitalPin;
 import org.vaadin.teemu.switchui.Switch;
 
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.TextField;
+
 import ru.skysoftlab.crongen.CronGenExt;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.greenhouse.ui.converters.DurationStringConverter;
 import ru.skysoftlab.skylibs.web.ui.AbstractForm;
-
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.TextField;
 
 /**
  * Форма полива.
@@ -25,7 +25,7 @@ import com.vaadin.ui.TextField;
 public class IrrigationForm extends AbstractForm<IrrigationCountur> {
 
 	private static final long serialVersionUID = 2372643403143137631L;
-
+	
 	private TextField cronExpr = new TextField("Период: ");
 	private TextField name = new TextField("Контур: ");
 	private TextField duration = new TextField("Длительность (мин.): ");

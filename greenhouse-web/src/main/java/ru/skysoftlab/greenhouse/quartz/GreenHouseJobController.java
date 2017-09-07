@@ -3,6 +3,7 @@ package ru.skysoftlab.greenhouse.quartz;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.DATA_INTERVAL;
 import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
+import static ru.skysoftlab.greenhouse.quartz.jobs.IrrigetionJob.CONTUR;
 
 import java.util.List;
 
@@ -22,8 +23,14 @@ import org.slf4j.LoggerFactory;
 
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
+import ru.skysoftlab.greenhouse.quartz.jobs.GableJob;
+import ru.skysoftlab.greenhouse.quartz.jobs.IrrigetionJob;
+import ru.skysoftlab.greenhouse.quartz.jobs.ScanTempJob;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
+import ru.skysoftlab.skylibs.common.EditableEntityState;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
+import ru.skysoftlab.skylibs.events.EntityChangeEvent;
+import ru.skysoftlab.skylibs.events.EntityChangeListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 import ru.skysoftlab.skylibs.quartz.JobController;
 
@@ -35,7 +42,7 @@ import ru.skysoftlab.skylibs.quartz.JobController;
  */
 @Startup
 @Singleton
-public class GreenHouseJobController extends JobController implements ConfigurationListener {
+public class GreenHouseJobController extends JobController implements ConfigurationListener, EntityChangeListener {
 
 	private Logger LOG = LoggerFactory.getLogger(GreenHouseJobController.class);
 
@@ -44,6 +51,7 @@ public class GreenHouseJobController extends JobController implements Configurat
 	private final TriggerKey tempTK = TriggerKey.triggerKey("scan-temp-startUp", SYSTEM_GROUP);
 	private final TriggerKey gableTK = TriggerKey.triggerKey("scan-gable-startUp", SYSTEM_GROUP);
 
+	private final JobKey scanJobKey = JobKey.jobKey("scan-readout", SYSTEM_GROUP);
 	private final JobKey gableJobKey = JobKey.jobKey("scan-gable", SYSTEM_GROUP);
 
 	@Inject
@@ -72,7 +80,6 @@ public class GreenHouseJobController extends JobController implements Configurat
 
 	private void startScanTempJob() {
 		try {
-			JobKey scanJobKey = JobKey.jobKey("scan-readout", SYSTEM_GROUP);
 			JobDetail scanJob = JobBuilder.newJob(ScanTempJob.class).withIdentity(scanJobKey).build();
 			Trigger trigger = createCronTrigger(tempTK, scanInterval, null);
 			getScheduler().scheduleJob(scanJob, trigger);
@@ -92,32 +99,79 @@ public class GreenHouseJobController extends JobController implements Configurat
 	}
 
 	private void startIrrigationJobs() {
-		// TODO перезапуск заданий полива
 		List<IrrigationCountur> counturs = baseProvider.getIrigationCounters();
-		for (IrrigationCountur irrigationCountur : counturs) {
-			try {
-				JobKey jobKey = JobKey.jobKey("irrigation-" + irrigationCountur.getName(), SYSTEM_GROUP);
-				TriggerKey irrigationTK = TriggerKey.triggerKey("irrigation-startUp-" + irrigationCountur.getName(),
-						SYSTEM_GROUP);
-				JobDetail scanJob = JobBuilder.newJob(IrrigetionJob.class).withIdentity(jobKey).build();
-				scanJob.getJobDataMap().put(IrrigetionJob.CONTUR, irrigationCountur);
-				Trigger trigger = createCronTrigger(irrigationTK, irrigationCountur.getCronExpr(), null);
-				getScheduler().scheduleJob(scanJob, trigger);
-			} catch (SchedulerException e) {
-				LOG.error("Error create scan temp job", e);
-			}
+		for (IrrigationCountur iCountur : counturs) {
+			startIrrigationJob(iCountur);
+		}
+	}
+
+	private void startIrrigationJob(IrrigationCountur iCountur) {
+		try {
+			JobDetail irrigationJob = createIrragationJobDetail(getKeyIrragationJob(iCountur.getId()), iCountur);
+			Trigger trigger = createCronTrigger(getKeyIrragationTrigger(iCountur.getId()), iCountur.getCronExpr(),
+					null);
+			getScheduler().scheduleJob(irrigationJob, trigger);
+		} catch (SchedulerException e) {
+			LOG.error("Error create scan temp job", e);
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * ru.skysoftlab.skylibs.events.ConfigurationListener#editIntervalEvent(
+	 * @see ru.skysoftlab.skylibs.events.ConfigurationListener#editIntervalEvent(
 	 * ru.skysoftlab.skylibs.events.SystemConfigEvent)
 	 */
 	@Override
-	public void editIntervalEvent(@Observes SystemConfigEvent event) {
+	public void configUpdated(@Observes SystemConfigEvent event) {
+		updateScanIntervalParam(event);
+		updateDataIntervalParam(event);
+		updateAutoParam(event);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * ru.skysoftlab.skylibs.events.EntityChangeListener#entityChange(ru.skysoftlab.
+	 * skylibs.events.EntityChangeEvent)
+	 */
+	@Override
+	public void entityChange(@Observes EntityChangeEvent event) {
+		if (event.getEntityClass().equals(IrrigationCountur.class)) {
+			JobKey jobKey = getKeyIrragationJob(event.getId());
+			if (event.getState().equals(EditableEntityState.DELETE)) {
+				try {
+					if (getScheduler().checkExists(jobKey)) {
+						resumeJobNow(jobKey);
+					}
+				} catch (SchedulerException e) {
+					e.printStackTrace();
+				}
+			} else {
+				IrrigationCountur countur = baseProvider.getIrrigationCountur(event.getId());
+				try {
+					if (getScheduler().checkExists(jobKey)) {
+						// update
+						resumeJobNow(jobKey);
+					}
+					if (countur.getRun()) {
+						// new
+						startIrrigationJob(countur);
+					}
+				} catch (SchedulerException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Обновляет интервал сканирования, если был изменен.
+	 * 
+	 * @param event
+	 */
+	private void updateScanIntervalParam(SystemConfigEvent event) {
 		String newScanInterval = event.getParam(SCAN_INTERVAL);
 		if (newScanInterval != null && newScanInterval.length() > 0 && !newScanInterval.equals(scanInterval)) {
 			scanInterval = newScanInterval;
@@ -128,6 +182,14 @@ public class GreenHouseJobController extends JobController implements Configurat
 				LOG.error("Error reschedule scan job", e);
 			}
 		}
+	}
+
+	/**
+	 * Обновляет интервал сканирования, если был изменен.
+	 * 
+	 * @param event
+	 */
+	private void updateDataIntervalParam(SystemConfigEvent event) {
 		String newDataInterval = event.getParam(DATA_INTERVAL);
 		if (newDataInterval != null && newDataInterval.length() > 0 && !newDataInterval.equals(scanInterval)) {
 			dataInterval = newDataInterval;
@@ -140,6 +202,14 @@ public class GreenHouseJobController extends JobController implements Configurat
 				LOG.error("Error reschedule gable job", e);
 			}
 		}
+	}
+
+	/**
+	 * Обновляет параметр автоуправления коньком.
+	 * 
+	 * @param event
+	 */
+	private void updateAutoParam(SystemConfigEvent event) {
 		Boolean newAuto = event.getParam(AUTO);
 		if (newAuto != null && !newAuto.equals(auto)) {
 			auto = newAuto;
@@ -160,9 +230,19 @@ public class GreenHouseJobController extends JobController implements Configurat
 			}
 		}
 	}
-	
-//	public void editIrrigationCountur(@Observes IrrigationCountur event) {
-//		
-//	}
+
+	private JobKey getKeyIrragationJob(Object id) {
+		return JobKey.jobKey("irrigation-" + id, SYSTEM_GROUP);
+	}
+
+	private TriggerKey getKeyIrragationTrigger(Object id) {
+		return TriggerKey.triggerKey("irrigation-startUp-" + id, SYSTEM_GROUP);
+	}
+
+	private JobDetail createIrragationJobDetail(JobKey jobKey, IrrigationCountur irrigationCountur) {
+		JobDetail jobDetail = JobBuilder.newJob(IrrigetionJob.class).withIdentity(jobKey).build();
+		jobDetail.getJobDataMap().put(CONTUR, irrigationCountur);
+		return jobDetail;
+	}
 
 }

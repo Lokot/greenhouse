@@ -34,6 +34,8 @@ import ru.skysoftlab.greenhouse.ui.renderers.CheckboxRenderer;
 @Connect(CheckboxRenderer.class)
 public class CheckboxRendererConnector extends ClickableRendererConnector<Boolean> {
 
+	private static final long serialVersionUID = -2231732309796548580L;
+
 	public CheckboxRendererConnector() {
 	}
 

@@ -13,6 +13,12 @@ import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
+/**
+ * График анализа показателей за месяц или год.
+ * 
+ * @author Lokot
+ *
+ */
 public class AnaliseTemperatureChart extends AbstractChartBean {
 
 	private static final long serialVersionUID = -7850512294106721583L;
@@ -23,7 +29,7 @@ public class AnaliseTemperatureChart extends AbstractChartBean {
 	private Date date = new Date();
 
 	private AnaliseChartType type = AnaliseChartType.Year;
-	
+
 	@Override
 	protected String getOptions() {
 		try {
@@ -36,83 +42,84 @@ public class AnaliseTemperatureChart extends AbstractChartBean {
 		}
 	}
 
-//	@Override
-//	public ChartConfiguration getConfig() {
-//		Axis xAxis = new Axis(AxisType.xAxis);
-//		xAxis.setTitle("Время");
-//		xAxis.setAxisValueType(AxisValueType.CATEGORY);
-//		MultipleAxis yAx = new MultipleAxis(AxisType.yAxis);
-//		Axis yTempAxis = new Axis(AxisType.yAxis);
-//		yTempAxis.setTitle("Температура (°C)");
-//		yAx.addAxis(yTempAxis);
-//		Axis yHumAxis = new Axis(AxisType.yAxis);
-//		yHumAxis.setTitle("Влажность (%)");
-//		yHumAxis.setOpposite(true);
-//		yAx.addAxis(yHumAxis);
-//		Axis yIllumAxis = new Axis(AxisType.yAxis);
-//		yIllumAxis.setTitle("Освещенность");
-//		yAx.addAxis(yIllumAxis);
-//		ChartConfiguration lineConfiguration = new ChartConfiguration();
-////		SplineChartPlotOptions splineChartPlotOptions = new SplineChartPlotOptions();
-////		splineChartPlotOptions.setMarker(false);
-////		splineChartPlotOptions.setDataLabelsEnabled(false);
-////		lineConfiguration.setPlotOptions(splineChartPlotOptions);
-//		switch (type) {
-//		case Month:
-//			lineConfiguration.setTitle("Показатели за месяц");
-//			lineConfiguration.setSubTitle(new SimpleDateFormat("MMM YYYY")
-//					.format(date));
-//			break;
-//
-//		case Year:
-//		default:
-//			lineConfiguration.setTitle("Показатели за год");
-//			lineConfiguration.setSubTitle(new SimpleDateFormat("YYYY")
-//					.format(date));
-//			break;
-//		}
-//		lineConfiguration.setChartType(ChartType.SPLINE);
-//		lineConfiguration.setBackgroundColor(MainView.Gray98);
-//		lineConfiguration.setxAxis(xAxis);
-//		lineConfiguration.setyAxis(yAx);
-//		return lineConfiguration;
-//	}
-//
-//	@Override
-//	protected List<HighChartsSeries> getSeries() {
-//		List<ReadOutDto> readouts = null;
-//		switch (type) {
-//		case Month:
-//			readouts = dataBaseProvider.getMonthTemp(date);
-//			break;
-//
-//		case Year:
-//		default:
-//
-//			readouts = dataBaseProvider.getYearTemp(date);
-//			break;
-//		}
-//
-//		List<HighChartsSeries> rv = new ArrayList<>();
-//		SplineChartSeries tempSer = new SplineChartSeries("Температура");
-//		SplineChartSeries humSer = new SplineChartSeries("Влажность");
-//		SplineChartSeries illumSer = new SplineChartSeries("Освещенность");
-//		tempSer.setyAxis(0);
-//		humSer.setyAxis(1);
-//		illumSer.setyAxis(2);
-//		for (ReadOutDto readout : readouts) {
-//			tempSer.addData(new StringNomberData(getValueName(readout
-//					.getDayOrMonth()), readout.getTemperature()));
-//			humSer.addData(new StringNomberData(getValueName(readout
-//					.getDayOrMonth()), readout.getHumidity()));
-//			illumSer.addData(new StringNomberData(getValueName(readout
-//					.getDayOrMonth()), readout.getIllumination()));
-//		}
-//		rv.add(tempSer);
-//		rv.add(humSer);
-//		rv.add(illumSer);
-//		return rv;
-//	}
+	// @Override
+	// public ChartConfiguration getConfig() {
+	// Axis xAxis = new Axis(AxisType.xAxis);
+	// xAxis.setTitle("Время");
+	// xAxis.setAxisValueType(AxisValueType.CATEGORY);
+	// MultipleAxis yAx = new MultipleAxis(AxisType.yAxis);
+	// Axis yTempAxis = new Axis(AxisType.yAxis);
+	// yTempAxis.setTitle("Температура (°C)");
+	// yAx.addAxis(yTempAxis);
+	// Axis yHumAxis = new Axis(AxisType.yAxis);
+	// yHumAxis.setTitle("Влажность (%)");
+	// yHumAxis.setOpposite(true);
+	// yAx.addAxis(yHumAxis);
+	// Axis yIllumAxis = new Axis(AxisType.yAxis);
+	// yIllumAxis.setTitle("Освещенность");
+	// yAx.addAxis(yIllumAxis);
+	// ChartConfiguration lineConfiguration = new ChartConfiguration();
+	//// SplineChartPlotOptions splineChartPlotOptions = new
+	// SplineChartPlotOptions();
+	//// splineChartPlotOptions.setMarker(false);
+	//// splineChartPlotOptions.setDataLabelsEnabled(false);
+	//// lineConfiguration.setPlotOptions(splineChartPlotOptions);
+	// switch (type) {
+	// case Month:
+	// lineConfiguration.setTitle("Показатели за месяц");
+	// lineConfiguration.setSubTitle(new SimpleDateFormat("MMM YYYY")
+	// .format(date));
+	// break;
+	//
+	// case Year:
+	// default:
+	// lineConfiguration.setTitle("Показатели за год");
+	// lineConfiguration.setSubTitle(new SimpleDateFormat("YYYY")
+	// .format(date));
+	// break;
+	// }
+	// lineConfiguration.setChartType(ChartType.SPLINE);
+	// lineConfiguration.setBackgroundColor(MainView.Gray98);
+	// lineConfiguration.setxAxis(xAxis);
+	// lineConfiguration.setyAxis(yAx);
+	// return lineConfiguration;
+	// }
+	//
+	// @Override
+	// protected List<HighChartsSeries> getSeries() {
+	// List<ReadOutDto> readouts = null;
+	// switch (type) {
+	// case Month:
+	// readouts = dataBaseProvider.getMonthTemp(date);
+	// break;
+	//
+	// case Year:
+	// default:
+	//
+	// readouts = dataBaseProvider.getYearTemp(date);
+	// break;
+	// }
+	//
+	// List<HighChartsSeries> rv = new ArrayList<>();
+	// SplineChartSeries tempSer = new SplineChartSeries("Температура");
+	// SplineChartSeries humSer = new SplineChartSeries("Влажность");
+	// SplineChartSeries illumSer = new SplineChartSeries("Освещенность");
+	// tempSer.setyAxis(0);
+	// humSer.setyAxis(1);
+	// illumSer.setyAxis(2);
+	// for (ReadOutDto readout : readouts) {
+	// tempSer.addData(new StringNomberData(getValueName(readout
+	// .getDayOrMonth()), readout.getTemperature()));
+	// humSer.addData(new StringNomberData(getValueName(readout
+	// .getDayOrMonth()), readout.getHumidity()));
+	// illumSer.addData(new StringNomberData(getValueName(readout
+	// .getDayOrMonth()), readout.getIllumination()));
+	// }
+	// rv.add(tempSer);
+	// rv.add(humSer);
+	// rv.add(illumSer);
+	// return rv;
+	// }
 
 	public void setDate(Date date) {
 		this.date = date;

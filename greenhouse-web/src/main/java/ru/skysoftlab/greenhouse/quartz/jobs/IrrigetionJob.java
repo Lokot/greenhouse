@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.quartz;
+package ru.skysoftlab.greenhouse.quartz.jobs;
 
 import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
 

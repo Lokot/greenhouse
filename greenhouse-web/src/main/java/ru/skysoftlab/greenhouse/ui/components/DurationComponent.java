@@ -65,8 +65,7 @@ public class DurationComponent extends CustomField<Duration> {
 
 	@Override
 	public Class<? extends Duration> getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return Duration.class;
 	}
 
 }

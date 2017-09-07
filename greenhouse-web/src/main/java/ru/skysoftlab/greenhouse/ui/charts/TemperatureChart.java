@@ -18,6 +18,12 @@ import ru.skysoftlab.greenhouse.jpa.entitys.Readout;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
+/**
+ * График показателей за сутки.
+ * 
+ * @author Lokot
+ *
+ */
 public class TemperatureChart extends AbstractChartBean {
 
 	private static final long serialVersionUID = -9040087776384049197L;

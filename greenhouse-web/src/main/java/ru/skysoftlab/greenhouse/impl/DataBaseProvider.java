@@ -200,4 +200,8 @@ public class DataBaseProvider implements Serializable {
 		List<IrrigationCountur> results = query.getResultList();
 		return results;
 	}
+
+	public IrrigationCountur getIrrigationCountur(Object id) {
+		return em.find(IrrigationCountur.class, id);
+	}
 }

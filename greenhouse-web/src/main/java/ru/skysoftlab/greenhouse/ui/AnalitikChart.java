@@ -5,6 +5,16 @@ import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 
+import com.vaadin.cdi.CDIView;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.VerticalLayout;
+
 import ru.skysoftlab.greenhouse.ui.charts.AnaliseTemperatureChart;
 import ru.skysoftlab.greenhouse.ui.charts.AnaliseTemperatureChart.AnaliseChartType;
 import ru.skysoftlab.greenhouse.web.MainMenu;
@@ -14,18 +24,6 @@ import ru.skysoftlab.skylibs.vaadin.highcharts.HighChart;
 import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
 import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
 import ru.skysoftlab.skylibs.web.ui.BaseMenuView;
-
-import com.vaadin.cdi.CDIView;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.VerticalLayout;
 
 @CDIView(Navigation.ANALIZ)
 @MainMenuItem(name = "Аналитика", order = MainMenu.ANALIZ, hasChilds = false)

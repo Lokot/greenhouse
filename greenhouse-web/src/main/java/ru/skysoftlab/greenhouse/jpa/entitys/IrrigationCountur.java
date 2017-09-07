@@ -1,7 +1,5 @@
 package ru.skysoftlab.greenhouse.jpa.entitys;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -16,6 +14,7 @@ import org.hibernate.annotations.TypeDefs;
 import org.joda.time.Duration;
 import org.sintef.jarduino.DigitalPin;
 
+import ru.skysoftlab.skylibs.common.EditableEntity;
 import ru.skysoftlab.skylibs.joda.types.DurationUserType;
 
 /**
@@ -27,7 +26,7 @@ import ru.skysoftlab.skylibs.joda.types.DurationUserType;
 @Entity
 @TypeDefs({ @TypeDef(name = "durationType", typeClass = DurationUserType.class) })
 @NamedQuery(name = "IrrigationCountur.getAll", query = "SELECT e FROM IrrigationCountur e WHERE e.run=true")
-public class IrrigationCountur implements Serializable {
+public class IrrigationCountur implements EditableEntity<Long> {
 
 	private static final long serialVersionUID = -1927142160552166374L;
 
@@ -47,6 +46,7 @@ public class IrrigationCountur implements Serializable {
 
 	private Boolean run;
 
+	@Override
 	public Long getId() {
 		return id;
 	}

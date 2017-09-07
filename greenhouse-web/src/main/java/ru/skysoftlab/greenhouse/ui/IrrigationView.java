@@ -39,6 +39,9 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 
 	@Inject
 	private IrrigationForm form;
+	
+	@Inject
+	private SwitchRenderer switchRenderer;
 
 	public IrrigationView() {
 		super(IrrigationCountur.class);
@@ -48,7 +51,7 @@ public class IrrigationView extends AbstractGridView<IrrigationCountur, Irrigati
 	protected void configureGrid() {
 		grid.getColumn("cronExpr").setConverter(new CronExprTextConverter());
 		grid.getColumn("duration").setConverter(new DurationTextConverter());
-		grid.getColumn("run").setRenderer(new SwitchRenderer());
+		grid.getColumn("run").setRenderer(switchRenderer);
 	}
 
 	@Override

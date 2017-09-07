@@ -116,7 +116,7 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	 * ru.skysoftlab.skylibs.events.SystemConfigEvent)
 	 */
 	@Override
-	public void editIntervalEvent(@Observes SystemConfigEvent event) {
+	public void configUpdated(@Observes SystemConfigEvent event) {
 		String newSerialPortName = event.getParam(SERIAL_PORT);
 		if (newSerialPortName != null && newSerialPortName.length() > 0 && !newSerialPortName.equals(portName)) {
 			portName = newSerialPortName;
@@ -127,6 +127,11 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#getIllumination()
+	 */
 	@Override
 	public int getIllumination() {
 		synchronized (LOCK) {
@@ -141,6 +146,11 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#getTemperature()
+	 */
 	@Override
 	public Float getTemperature() {
 		synchronized (LOCK) {
@@ -155,6 +165,11 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#getHumidity()
+	 */
 	@Override
 	public Float getHumidity() {
 		synchronized (LOCK) {
@@ -170,6 +185,11 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	}
 
 	// @Asynchronous
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#getGableState()
+	 */
 	@Override
 	@Produces
 	public GableState getGableState() {
@@ -220,14 +240,22 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#setGableState(ru.skysoftlab.
+	 * greenhouse.common.GableState)
+	 */
 	@Override
 	public void setGableState(GableState newGableState) {
 		newGbState = newGableState;
 		int compare = newGableState.compareTo(getGableState());
 		if (compare > 0) {
 			sendOpenSignal();
+			LOG.info("Gable opens to " + newGableState.getStringState());
 		} else if (compare < 0) {
 			sendCloseSignal();
+			LOG.info("Gable close to " + newGableState.getStringState());
 		} else {
 			// текущее состояние соответствует
 		}
@@ -283,19 +311,48 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 		arduino.digitalWrite(closeSignal, HIGH);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * ru.skysoftlab.greenhouse.arduino.IArduino#openIrrigationCountur(org.sintef.
+	 * jarduino.DigitalPin)
+	 */
 	@Override
 	public void openIrrigationCountur(DigitalPin pin) {
 		arduino.digitalWrite(pin, HIGH);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * ru.skysoftlab.greenhouse.arduino.IArduino#closeIrrigationCountur(org.sintef.
+	 * jarduino.DigitalPin)
+	 */
 	@Override
 	public void closeIrrigationCountur(DigitalPin pin) {
 		arduino.digitalWrite(pin, LOW);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#isConnected()
+	 */
 	@Override
 	public boolean isConnected() {
 		return !(arduino == null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#isGableMoved()
+	 */
+	@Override
+	public boolean isGableMoved() {
+		return !gbState.equals(newGbState) || isCalibrateMode;
 	}
 
 }

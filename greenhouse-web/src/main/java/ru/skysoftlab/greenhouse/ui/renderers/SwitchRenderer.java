@@ -15,10 +15,18 @@
  */
 package ru.skysoftlab.greenhouse.ui.renderers;
 
+import static ru.skysoftlab.skylibs.common.EditableEntityState.UPDATE;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.ui.renderers.ClickableRenderer;
+
+import ru.skysoftlab.skylibs.events.EntityChangeEvent;
 
 /**
  * CheckboxRenderer that supports updating data on the server when checkbox is
@@ -28,8 +36,15 @@ public class SwitchRenderer extends ClickableRenderer<Boolean> {
 
 	private static final long serialVersionUID = -3268403895597719476L;
 
+	@Inject
+	private Event<EntityChangeEvent> entityChangeEvent;
+
 	public SwitchRenderer() {
 		super(Boolean.class, null);
+	}
+
+	@PostConstruct
+	private void init() {
 		addClickListener(new RendererClickListener() {
 
 			private static final long serialVersionUID = 7262317462934839612L;
@@ -42,11 +57,14 @@ public class SwitchRenderer extends ClickableRenderer<Boolean> {
 
 				Container.Indexed containerDataSource = getParentGrid().getContainerDataSource();
 				Property<Boolean> itemProperty = containerDataSource.getItem(itemId).getItemProperty(propertyId);
-				itemProperty.setValue(!Boolean.TRUE.equals(itemProperty.getValue()));
+				boolean value = !Boolean.TRUE.equals(itemProperty.getValue());
+				itemProperty.setValue(value);
 
 				JPAContainer jpaContainer = (JPAContainer) containerDataSource;
 				Object entity = jpaContainer.getItem(itemId).getEntity();
 				jpaContainer.addEntity(entity);
+				// событие изменения настроек
+				entityChangeEvent.fire(new EntityChangeEvent(itemId, entity.getClass(), UPDATE));
 			}
 		});
 	}
