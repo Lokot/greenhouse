@@ -27,10 +27,15 @@ public class AngularHumChart extends AbstractChartBean {
 	@Inject
 	private IArduino arduino;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.common.AbstractChartBean#getOptions()
+	 */
 	@Override
 	protected String getOptions() {
 		try {
-			URL url = Resources.getResource("charts/newhumChart.js");
+			URL url = Resources.getResource("charts/humChart.js");
 			String options = Resources.toString(url, Charsets.UTF_8).replaceAll("HUM_MAX", humMax.toString())
 					.replaceAll("HUM_NOW", arduino.getHumidity().toString());
 			return options;
@@ -39,7 +44,7 @@ public class AngularHumChart extends AbstractChartBean {
 			return "";
 		}
 	}
-	
+
 	public String updateValue() {
 		String rv = "chart.series[0].update({data: [" + arduino.getHumidity().toString() + "]});";
 		return rv;

@@ -7,6 +7,7 @@ import static ru.skysoftlab.greenhouse.quartz.jobs.IrrigetionJob.CONTUR;
 
 import java.util.List;
 
+import javax.ejb.Local;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
@@ -42,6 +43,7 @@ import ru.skysoftlab.skylibs.quartz.JobController;
  */
 @Startup
 @Singleton
+@Local({ConfigurationListener.class, EntityChangeListener.class})
 public class GreenHouseJobController extends JobController implements ConfigurationListener, EntityChangeListener {
 
 	private Logger LOG = LoggerFactory.getLogger(GreenHouseJobController.class);
@@ -143,7 +145,7 @@ public class GreenHouseJobController extends JobController implements Configurat
 			if (event.getState().equals(EditableEntityState.DELETE)) {
 				try {
 					if (getScheduler().checkExists(jobKey)) {
-						resumeJobNow(jobKey);
+						deleteJobNow(jobKey);
 					}
 				} catch (SchedulerException e) {
 					e.printStackTrace();
@@ -153,7 +155,7 @@ public class GreenHouseJobController extends JobController implements Configurat
 				try {
 					if (getScheduler().checkExists(jobKey)) {
 						// update
-						resumeJobNow(jobKey);
+						deleteJobNow(jobKey);
 					}
 					if (countur.getRun()) {
 						// new

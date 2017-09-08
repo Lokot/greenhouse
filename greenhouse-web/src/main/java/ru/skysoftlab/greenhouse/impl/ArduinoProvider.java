@@ -320,6 +320,8 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	 */
 	@Override
 	public void openIrrigationCountur(DigitalPin pin) {
+		if (arduino == null)
+			return;
 		arduino.digitalWrite(pin, HIGH);
 	}
 
@@ -332,6 +334,8 @@ public class ArduinoProvider implements IArduino, ConfigurationListener, GableSt
 	 */
 	@Override
 	public void closeIrrigationCountur(DigitalPin pin) {
+		if (arduino == null)
+			return;
 		arduino.digitalWrite(pin, LOW);
 	}
 

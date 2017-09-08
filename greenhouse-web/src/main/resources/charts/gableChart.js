@@ -1,10 +1,17 @@
 var options = {
 
 		chart: {
-	        type: 'solidgauge'
+	        type: 'solidgauge',
+	        plotBackgroundColor: null,
+	        plotBackgroundImage: null,
+	        plotBorderWidth: 0,
+	        plotShadow: false,
+	        backgroundColor: '#FAFAFA'
 	    },
 
-	    title: null,
+		title: {
+	    	text: 'Конек',
+        },
 		
 		exporting: {
 			enabled: false
@@ -12,7 +19,7 @@ var options = {
 
 	    pane: {
 	        center: ['50%', '85%'],
-	        size: '140%',
+	        size: '100%',
 	        startAngle: -90,
 	        endAngle: 90,
 	        background: {
@@ -31,20 +38,14 @@ var options = {
 	    yAxis: {
 	    	min: 0,
 		    max: 100,
-		    title: {
-		    	text: 'Конек'
-		    },
-	        stops: [
+		    stops: [
 	            [0.3, '#55BF3B'], // green
 	            [0.6, '#DDDF0D'], // yellow
-	            [1.0, '#DF5353'] // red
+	            [1.0, '#DF5353']  // red
 	        ],
 	        lineWidth: 0,
 	        minorTickInterval: null,
 	        tickAmount: 2,
-	        title: {
-	            y: -70
-	        },
 	        labels: {
 	            y: 16
 	        }
@@ -76,5 +77,4 @@ var options = {
 	            valueSuffix: ' %'
 	        }
 	    }]
-
 };

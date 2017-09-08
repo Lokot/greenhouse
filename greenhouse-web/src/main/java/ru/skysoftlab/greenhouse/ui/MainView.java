@@ -35,7 +35,7 @@ import com.vaadin.ui.VerticalLayout;
  *
  */
 @CDIView(MainMenu.MAIN)
-@RolesAllowed({ RolesList.USER, RolesList.ADMIN })
+@RolesAllowed({ RolesList.GUEST, RolesList.USER, RolesList.ADMIN })
 public class MainView extends BaseMenuView implements UIEvents.PollListener {
 
 	private static final long serialVersionUID = 1307704684754077226L;

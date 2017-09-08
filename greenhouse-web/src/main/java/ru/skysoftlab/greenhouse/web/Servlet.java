@@ -3,6 +3,7 @@ package ru.skysoftlab.greenhouse.web;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
+import ru.skysoftlab.skylibs.web.common.AppNames;
 import ru.skysoftlab.skylibs.web.navigation.MainVaadinUI;
 
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -21,5 +22,9 @@ import com.vaadin.cdi.server.VaadinCDIServlet;
 public class Servlet extends VaadinCDIServlet {
 
 	private static final long serialVersionUID = 2918754860952978590L;
+	
+	public Servlet() {
+		System.setProperty(AppNames.APP_NAME, "Система управления теплицей");
+	}
 
 }

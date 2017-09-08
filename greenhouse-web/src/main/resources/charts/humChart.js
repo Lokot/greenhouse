@@ -57,7 +57,7 @@ var options = {
     // the value axis
     yAxis: {
         min: 0,
-        max: 200,
+        max: 100,
 
         minorTickInterval: 'auto',
         minorTickWidth: 1,
@@ -79,22 +79,18 @@ var options = {
         },
         plotBands: [{
             from: 0,
-            to: 120,
+            to: HUM_MAX,
             color: '#55BF3B' // green
         }, {
-            from: 120,
-            to: 160,
-            color: '#DDDF0D' // yellow
-        }, {
-            from: 160,
-            to: 200,
+            from: HUM_MAX,
+            to: 100,
             color: '#DF5353' // red
         }]
     },
 
     series: [{
         name: 'Влажность',
-        data: [80],
+        data: [HUM_NOW],
         tooltip: {
             valueSuffix: ' %'
         }

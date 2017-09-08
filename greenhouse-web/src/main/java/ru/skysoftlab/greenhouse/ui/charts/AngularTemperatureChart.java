@@ -42,6 +42,11 @@ public class AngularTemperatureChart extends AbstractChartBean {
 	@Inject
 	private IArduino arduino;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.common.AbstractChartBean#getOptions()
+	 */
 	@Override
 	protected String getOptions() {
 		try {

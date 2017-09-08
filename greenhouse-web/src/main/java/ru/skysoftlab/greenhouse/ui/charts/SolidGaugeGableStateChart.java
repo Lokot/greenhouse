@@ -20,6 +20,11 @@ public class SolidGaugeGableStateChart extends AbstractChartBean {
 	@Inject
 	private GableState stateNow;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.common.AbstractChartBean#getOptions()
+	 */
 	@Override
 	protected String getOptions() {
 		try {
@@ -32,7 +37,7 @@ public class SolidGaugeGableStateChart extends AbstractChartBean {
 			return "";
 		}
 	}
-	
+
 	public String updateValue() {
 		String rv = "chart.series[0].update({data: [" + String.valueOf(stateNow.toInt()) + "]});";
 		return rv;

@@ -39,7 +39,6 @@ public class AnalitikChart extends BaseMenuView {
 	private DateField date = new DateField();
 	private HighChart chart;
 	
-	
 	@Override
 	protected void configureComponents() {
 		dateType.addItems(new VaadinItemDto(true, "За год"), new VaadinItemDto(false,
@@ -79,13 +78,8 @@ public class AnalitikChart extends BaseMenuView {
 		chart = tchart.getChart();
 	}
 	
-	private void redrawChart(){
-		// TODO исправить
-//		try {
-//			chart.redraw(tchart.getConfigWithSeries());
-//		} catch (HighChartsException e) {
-//			Notification.show(e.getMessage(), Type.TRAY_NOTIFICATION);
-//		}
+	private void redrawChart() {
+		chart.updateOptions(tchart.getSeries());
 	}
 
 	@Override
