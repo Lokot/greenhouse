@@ -15,6 +15,7 @@ import static ru.skysoftlab.greenhouse.impl.ControllerPins.stopSignal;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -25,7 +26,10 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.skysoftlab.gpio.AnalogPin;
+import ru.skysoftlab.gpio.DigitalPin;
 import ru.skysoftlab.gpio.GpioException;
+import ru.skysoftlab.gpio.IAnalogPin;
 import ru.skysoftlab.gpio.IDigitalPin;
 import ru.skysoftlab.greenhouse.common.GableMoveEvent;
 import ru.skysoftlab.greenhouse.common.GableState;
@@ -34,6 +38,7 @@ import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.common.IGableGpioDevice;
 import ru.skysoftlab.greenhouse.gpio.Dht22Params;
 import ru.skysoftlab.greenhouse.gpio.Sensor;
+import ru.skysoftlab.skylibs.annatations.AppPropertyFile;
 
 @Singleton
 // @Startup
@@ -54,18 +59,22 @@ public class ControllerProvider implements IController, GableStateListener {
 	@Inject
 	private IGableGpioDevice gpioDevice;
 
+	@Inject
+	@AppPropertyFile("pins.properties")
+	private Properties pins = new Properties();
+
 	@PostConstruct
 	private void init() {
 		gpioDevice.setGableStateListener(this);
 		try {
-			gpioDevice.setPinMode(illumPin, INPUT);
-			gpioDevice.setPinMode(stateOpen, INPUT);
-			gpioDevice.setPinMode(state60, INPUT);
-			gpioDevice.setPinMode(state30, INPUT);
-			gpioDevice.setPinMode(stateClose, INPUT);
-			gpioDevice.setPinMode(openSignal, OUTPUT);
-			gpioDevice.setPinMode(stopSignal, OUTPUT);
-			gpioDevice.setPinMode(closeSignal, OUTPUT);
+			gpioDevice.setPinMode(getAnalogPin(illumPin), INPUT);
+			gpioDevice.setPinMode(getDigitalPin(stateOpen), INPUT);
+			gpioDevice.setPinMode(getDigitalPin(state60), INPUT);
+			gpioDevice.setPinMode(getDigitalPin(state30), INPUT);
+			gpioDevice.setPinMode(getDigitalPin(stateClose), INPUT);
+			gpioDevice.setPinMode(getDigitalPin(openSignal), OUTPUT);
+			gpioDevice.setPinMode(getDigitalPin(stopSignal), OUTPUT);
+			gpioDevice.setPinMode(getDigitalPin(closeSignal), OUTPUT);
 			// TODO инициализация пинов для полива
 		} catch (GpioException e) {
 			LOG.error("Error set pin mode ", e);
@@ -112,7 +121,7 @@ public class ControllerProvider implements IController, GableStateListener {
 	public int getIllumination() {
 		synchronized (LOCK) {
 			try {
-				return gpioDevice.analogRead(illumPin);
+				return gpioDevice.analogRead(getAnalogPin(illumPin));
 			} catch (GpioException e) {
 				LOG.error("Error read illumination ", e);
 				return -1;
@@ -130,7 +139,7 @@ public class ControllerProvider implements IController, GableStateListener {
 		synchronized (LOCK) {
 			String value;
 			try {
-				value = gpioDevice.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.TEMP, 5000);
+				value = gpioDevice.sensorRead(getDigitalPin(dhtPin), Sensor.DHT22, Dht22Params.TEMP, 5000);
 				try {
 					return round(Float.parseFloat(value), 1);
 				} catch (Exception e) {
@@ -153,7 +162,7 @@ public class ControllerProvider implements IController, GableStateListener {
 		synchronized (LOCK) {
 			String value;
 			try {
-				value = gpioDevice.sensorRead(dhtPin, Sensor.DHT22, Dht22Params.HUM, 5000);
+				value = gpioDevice.sensorRead(getDigitalPin(dhtPin), Sensor.DHT22, Dht22Params.HUM, 5000);
 				try {
 					return round(Float.parseFloat(value), 1);
 				} catch (Exception e) {
@@ -191,16 +200,16 @@ public class ControllerProvider implements IController, GableStateListener {
 	private GableState findGable() {
 		synchronized (LOCK) {
 			try {
-				if (gpioDevice.digitalRead(stateClose)) {
+				if (gpioDevice.digitalRead(getDigitalPin(stateClose))) {
 					return GableState.Close;
 				}
-				if (gpioDevice.digitalRead(state30)) {
+				if (gpioDevice.digitalRead(getDigitalPin(state30))) {
 					return GableState.Degrees30;
 				}
-				if (gpioDevice.digitalRead(state60)) {
+				if (gpioDevice.digitalRead(getDigitalPin(state60))) {
 					return GableState.Degrees60;
 				}
-				if (gpioDevice.digitalRead(stateOpen)) {
+				if (gpioDevice.digitalRead(getDigitalPin(stateOpen))) {
 					return GableState.Open;
 				}
 			} catch (GpioException e) {
@@ -266,9 +275,9 @@ public class ControllerProvider implements IController, GableStateListener {
 
 	private void sendStopSignal() {
 		try {
-			gpioDevice.digitalWrite(stopSignal, false);
+			gpioDevice.digitalWrite(getDigitalPin(stopSignal), false);
 			gpioDevice.delay(1000);
-			gpioDevice.digitalWrite(stopSignal, true);
+			gpioDevice.digitalWrite(getDigitalPin(stopSignal), true);
 			gpioDevice.delay(1000);
 		} catch (GpioException e) {
 			LOG.error("Error sendStopSignal ", e);
@@ -278,9 +287,9 @@ public class ControllerProvider implements IController, GableStateListener {
 	private void sendOpenSignal() {
 		sendStopSignal();
 		try {
-			gpioDevice.digitalWrite(openSignal, false);
+			gpioDevice.digitalWrite(getDigitalPin(openSignal), false);
 			gpioDevice.delay(1000);
-			gpioDevice.digitalWrite(openSignal, true);
+			gpioDevice.digitalWrite(getDigitalPin(openSignal), true);
 		} catch (GpioException e) {
 			LOG.error("Error sendOpenSignal ", e);
 		}
@@ -289,9 +298,9 @@ public class ControllerProvider implements IController, GableStateListener {
 	private void sendCloseSignal() {
 		sendStopSignal();
 		try {
-			gpioDevice.digitalWrite(closeSignal, false);
+			gpioDevice.digitalWrite(getDigitalPin(closeSignal), false);
 			gpioDevice.delay(1000);
-			gpioDevice.digitalWrite(closeSignal, true);
+			gpioDevice.digitalWrite(getDigitalPin(closeSignal), true);
 		} catch (GpioException e) {
 			LOG.error("Error sendCloseSignal ", e);
 		}
@@ -360,6 +369,14 @@ public class ControllerProvider implements IController, GableStateListener {
 	@Override
 	public Collection<String> getCommPorts() {
 		return gpioDevice.getCommPorts();
+	}
+
+	private IDigitalPin getDigitalPin(String pName) {
+		return new DigitalPin(pins.getProperty(pName));
+	}
+
+	private IAnalogPin getAnalogPin(String pName) {
+		return new AnalogPin(pins.getProperty(pName));
 	}
 
 }
