@@ -1,6 +1,6 @@
 package ru.skysoftlab.greenhouse.quartz.jobs;
 
-import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
+import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
 
 import java.util.Date;
 
@@ -13,8 +13,8 @@ import org.apache.openejb.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import ru.skysoftlab.greenhouse.jpa.entitys.Readout;
 
@@ -30,7 +30,7 @@ public class ScanTempJob implements Job {
 	private Logger LOG = LoggerFactory.getLogger(ScanTempJob.class);
 
 	@Inject
-	private IArduino arduino;
+	private IController arduino;
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;

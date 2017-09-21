@@ -76,6 +76,7 @@ public class AnalitikChart extends BaseMenuView {
 			}
 		});
 		chart = tchart.getChart();
+		chart.setSizeFull();
 	}
 	
 	private void redrawChart() {

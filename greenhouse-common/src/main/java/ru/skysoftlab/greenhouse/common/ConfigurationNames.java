@@ -1,4 +1,4 @@
-package ru.skysoftlab.greenhouse.impl;
+package ru.skysoftlab.greenhouse.common;
 
 public interface ConfigurationNames {
 

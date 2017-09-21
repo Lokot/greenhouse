@@ -1,14 +1,14 @@
 package ru.skysoftlab.greenhouse.dto;
 
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.DATA_INTERVAL;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.HUM_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SERIAL_PORT;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_1;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_2;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.AUTO;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.DATA_INTERVAL;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.HUM_MAX;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.SCAN_INTERVAL;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.SERIAL_PORT;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_1;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_2;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MAX;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MIN;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -1,12 +1,12 @@
 package ru.skysoftlab.greenhouse.quartz.jobs;
 
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.HUM_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_1;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_2;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
-import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
+import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.AUTO;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.HUM_MAX;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_1;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_2;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MAX;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MIN;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
@@ -21,7 +21,7 @@ import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.dto.GableParamsDto;
 import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
@@ -41,7 +41,7 @@ public class GableJob implements Job, ConfigurationListener {
 	private Boolean auto;
 
 	@Inject
-	private IArduino arduino;
+	private IController controller;
 
 	@Inject
 	private SystemConfigDto dto;
@@ -58,7 +58,7 @@ public class GableJob implements Job, ConfigurationListener {
 		kSession.setGlobal(TEMP_2, dto.getTemp2());
 		kSession.setGlobal(TEMP_1, dto.getTemp1());
 		kSession.setGlobal(TEMP_MIN, dto.getTempMin());
-		kSession.setGlobal("arduino", arduino);
+		kSession.setGlobal("arduino", controller);
 	}
 
 	/*
@@ -71,11 +71,11 @@ public class GableJob implements Job, ConfigurationListener {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		synchronized (LOCK) {
 			LOG.info("Check params to gable " + context.getJobDetail().getKey());
-			if (auto && arduino.isConnected() && !arduino.isGableMoved()) {
+			if (auto && controller.isConnected() && !controller.isGableMoved()) {
 				try {
 					LOG.info("Gable Auto Mode");
-					Float temperature = arduino.getTemperature();
-					Float humidity = arduino.getHumidity();
+					Float temperature = controller.getTemperature();
+					Float humidity = controller.getHumidity();
 
 					GableParamsDto readOutDto = new GableParamsDto(temperature, humidity);
 					kSession.insert(readOutDto);

@@ -1,10 +1,10 @@
 package ru.skysoftlab.greenhouse.ui.components;
 
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.AUTO;
 import static ru.skysoftlab.greenhouse.common.GableState.Close;
 import static ru.skysoftlab.greenhouse.common.GableState.Degrees30;
 import static ru.skysoftlab.greenhouse.common.GableState.Degrees60;
 import static ru.skysoftlab.greenhouse.common.GableState.Open;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +13,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.GableMoveEvent;
 import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
@@ -43,7 +43,7 @@ public class GableStateSelector extends GridLayout {
 	private static final long serialVersionUID = -5570816315675931244L;
 
 	@Inject
-	private IArduino arduino;
+	private IController arduino;
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;

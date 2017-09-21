@@ -1,11 +1,11 @@
-package ru.skysoftlab.greenhouse.arduino;
+package ru.skysoftlab.greenhouse.gpio;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sintef.jarduino.JArduinoSensorParametr;
+import ru.skysoftlab.gpio.ISensorParam;
 
-public enum Dht22Params implements JArduinoSensorParametr {
+public enum Dht22Params implements ISensorParam {
 	
 	TEMP((byte) 0), HUM((byte) 1);
 

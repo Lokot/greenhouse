@@ -6,8 +6,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.skylibs.annatations.SimpleQualifier;
 import ru.skysoftlab.skylibs.web.common.UniversalAction;
 
@@ -24,7 +24,7 @@ public class ReadOutAction implements UniversalAction {
 	public static final String ALL = "all";
 
 	@Inject
-	private IArduino arduino;
+	private IController controller;
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -33,30 +33,30 @@ public class ReadOutAction implements UniversalAction {
 			if (act != null && act.length() > 0) {
 				switch (act) {
 				case TEMP:
-					Float temperature = arduino.getTemperature();
+					Float temperature = controller.getTemperature();
 					response.getWriter().println("{\"" + TEMP + "\":" + temperature + "}");
 					break;
 
 				case HUM:
-					Float humidity = arduino.getHumidity();
+					Float humidity = controller.getHumidity();
 					response.getWriter().println("{\"" + HUM + "\":" + humidity + "}");
 					break;
 
 				case ILLUM:
-					Integer illumination = arduino.getIllumination();
+					Integer illumination = controller.getIllumination();
 					response.getWriter().println("{\"" + ILLUM + "\":" + illumination + "}");
 					break;
 
 				case GABLE:
-					GableState gState = arduino.getGableState();
+					GableState gState = controller.getGableState();
 					response.getWriter().println("{\"" + GABLE + "\":" + gState.toString() + "}");
 					break;
 
 				case ALL:
-					Float temp = arduino.getTemperature();
-					Float hum = arduino.getHumidity();
-					Integer illum = arduino.getIllumination();
-					GableState state = arduino.getGableState();
+					Float temp = controller.getTemperature();
+					Float hum = controller.getHumidity();
+					Integer illum = controller.getIllumination();
+					GableState state = controller.getGableState();
 					response.getWriter().println(
 							"{\"" + TEMP + "\":" + temp + "," + "\"" + HUM + "\":" + hum + "," + "\"" + ILLUM + "\":"
 									+ illum + "," + "\"" + GABLE + "\":" + state + "}");

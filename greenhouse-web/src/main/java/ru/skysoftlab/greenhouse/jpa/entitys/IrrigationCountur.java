@@ -1,8 +1,6 @@
 package ru.skysoftlab.greenhouse.jpa.entitys;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,8 +10,9 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.joda.time.Duration;
-import org.sintef.jarduino.DigitalPin;
 
+import ru.skysoftlab.gpio.DigitalPin;
+import ru.skysoftlab.greenhouse.jpa.PinDbType;
 import ru.skysoftlab.skylibs.common.EditableEntity;
 import ru.skysoftlab.skylibs.joda.types.DurationUserType;
 
@@ -24,7 +23,8 @@ import ru.skysoftlab.skylibs.joda.types.DurationUserType;
  *
  */
 @Entity
-@TypeDefs({ @TypeDef(name = "durationType", typeClass = DurationUserType.class) })
+@TypeDefs({ @TypeDef(name = "durationType", typeClass = DurationUserType.class),
+		@TypeDef(name = "pinType", typeClass = PinDbType.class) })
 @NamedQuery(name = "IrrigationCountur.getAll", query = "SELECT e FROM IrrigationCountur e WHERE e.run=true")
 public class IrrigationCountur implements EditableEntity<Long> {
 
@@ -41,7 +41,7 @@ public class IrrigationCountur implements EditableEntity<Long> {
 
 	private String name;
 
-	@Enumerated(EnumType.STRING)
+	@Type(type = "pinType")
 	private DigitalPin pin;
 
 	private Boolean run;

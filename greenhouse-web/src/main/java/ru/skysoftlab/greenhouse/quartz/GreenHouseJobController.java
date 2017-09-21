@@ -1,8 +1,8 @@
 package ru.skysoftlab.greenhouse.quartz;
 
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.AUTO;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.DATA_INTERVAL;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.SCAN_INTERVAL;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.AUTO;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.DATA_INTERVAL;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.SCAN_INTERVAL;
 import static ru.skysoftlab.greenhouse.quartz.jobs.IrrigetionJob.CONTUR;
 
 import java.util.List;

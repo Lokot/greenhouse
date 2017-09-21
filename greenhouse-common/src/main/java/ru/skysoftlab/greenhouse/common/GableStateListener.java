@@ -14,4 +14,6 @@ public interface GableStateListener {
 	 * @param gableState
 	 */
 	public void gableStateIs(GableState gableState);
+	
+	
 }

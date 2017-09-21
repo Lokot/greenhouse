@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fazecast.jSerialComm.SerialPort;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -27,6 +26,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import ru.skysoftlab.crongen.ParseCronGenComponent;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import ru.skysoftlab.greenhouse.ui.converters.CustomAutoGableConverter;
@@ -59,6 +59,9 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener, 
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;
+	
+	@Inject
+	private IController controller;
 
 	@Inject
 	private javax.enterprise.event.Event<SystemConfigEvent> systemEvent;
@@ -89,9 +92,7 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener, 
 		// illumMin.setMax(1000);
 		// illumMin.setWidth("300px");
 		serialPort.removeAllItems();
-		for (SerialPort port : SerialPort.getCommPorts()) {
-			serialPort.addItem(port.getSystemPortName());
-		}
+		serialPort.addItems(controller.getCommPorts());
 		auto.removeAllItems();
 		auto.addItems(new VaadinItemDto(true, "Автоматическое"), new VaadinItemDto(false, "Ручное"));
 		auto.setConverter(new CustomAutoGableConverter());

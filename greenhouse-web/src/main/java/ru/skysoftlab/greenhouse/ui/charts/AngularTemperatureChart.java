@@ -1,9 +1,9 @@
 package ru.skysoftlab.greenhouse.ui.charts;
 
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_1;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_2;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MAX;
-import static ru.skysoftlab.greenhouse.impl.ConfigurationNames.TEMP_MIN;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_1;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_2;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MAX;
+import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MIN;
 
 import java.io.IOException;
 import java.net.URL;
@@ -11,8 +11,8 @@ import java.net.URL;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.AbstractChartBean;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 
 import com.google.common.base.Charsets;
@@ -40,7 +40,7 @@ public class AngularTemperatureChart extends AbstractChartBean {
 	private Float tempMin;
 
 	@Inject
-	private IArduino arduino;
+	private IController arduino;
 
 	/*
 	 * (non-Javadoc)

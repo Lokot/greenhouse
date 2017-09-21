@@ -6,8 +6,8 @@ import java.net.URL;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
 import ru.skysoftlab.greenhouse.common.AbstractChartBean;
+import ru.skysoftlab.greenhouse.common.IController;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -18,7 +18,7 @@ public class AngularIlluminationChart extends AbstractChartBean {
 	private static final long serialVersionUID = 7259550413022270923L;
 
 	@Inject
-	private IArduino arduino;
+	private IController arduino;
 
 	/*
 	 * (non-Javadoc)

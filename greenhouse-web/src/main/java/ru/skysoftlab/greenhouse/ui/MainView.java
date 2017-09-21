@@ -78,6 +78,7 @@ public class MainView extends BaseMenuView implements UIEvents.PollListener {
 			}
 		});
 		lineChart = mainChart.getChart();
+		lineChart.setSizeFull();
 		angularTempChart = tempChart.getChart();
 		angularHumChart = humChart.getChart();
 		angularIllumChart = illumChart.getChart();

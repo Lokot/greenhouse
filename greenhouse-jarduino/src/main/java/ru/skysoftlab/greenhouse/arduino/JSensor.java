@@ -3,18 +3,18 @@ package ru.skysoftlab.greenhouse.arduino;
 import org.sintef.jarduino.JArduinoSensor;
 import org.sintef.jarduino.JArduinoSensorParametr;
 
-public enum Sensor implements JArduinoSensor {
+public enum JSensor implements JArduinoSensor {
 
-	DHT22((byte) 0);
+	DHT22((byte) 0, JDht22Params.TEMP, JDht22Params.HUM);
 	
 	static {
-		map.put(DHT22.getValue(), Sensor.DHT22);
+		map.put(DHT22.getValue(), JSensor.DHT22);
 	}
 
 	private final byte value;
 	private final JArduinoSensorParametr[] params;
 
-	private Sensor(byte value, JArduinoSensorParametr ...parametrs) {
+	private JSensor(byte value, JArduinoSensorParametr ...parametrs) {
 		this.value = value;
 		this.params = parametrs;
 	}

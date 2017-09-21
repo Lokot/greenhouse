@@ -164,7 +164,7 @@ var options = {
 	        data: [HUM_SER],
 	        dashStyle: 'Dash',
 	        tooltip: {
-	            valueSuffix: ''
+	            valueSuffix: ' %'
 	        }
 
 	    }, {

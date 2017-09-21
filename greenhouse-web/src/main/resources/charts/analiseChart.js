@@ -111,17 +111,27 @@ var options = {
 		
 		series: [
 			{
-			    name: 'Конек',
-			    type: 'column',
-			    yAxis: 3,
+			    name: 'Температура',
+			    type: 'spline',
+			    yAxis: 0,
 			    data: [TEMP],
 			    tooltip: {
-			        valueSuffix: ' %'
+			        valueSuffix: ' °C'
 			    },
-				color: Highcharts.getOptions().colors[3]
+				color: Highcharts.getOptions().colors[2]
+			},
+			{
+				name: 'Влажность',
+			    type: 'spline',
+			    yAxis: 1,
+			    data: [HUM],
+			    dashStyle: 'Dash',
+			    tooltip: {
+			        valueSuffix: ' %'
+			    }
 			
 			}, {
-			    name: 'Освещенность',
+				name: 'Освещенность',
 			    type: 'spline',
 			    yAxis: 2,
 			    data: [ILLUM],
@@ -130,16 +140,6 @@ var options = {
 			        valueSuffix: ''
 			    },
 				color: Highcharts.getOptions().colors[1]
-			
-			}, {
-			    name: 'Влажность',
-			    type: 'spline',
-			    yAxis: 1,
-			    data: [HUM],
-			    dashStyle: 'Dash',
-			    tooltip: {
-			        valueSuffix: ''
-			    }
 			}
 		]
 };

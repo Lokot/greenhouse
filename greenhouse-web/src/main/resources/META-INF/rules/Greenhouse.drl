@@ -8,7 +8,7 @@ global java.lang.Float tempMax;
 global java.lang.Float temp2;
 global java.lang.Float temp1;
 global java.lang.Float tempMin;
-global ru.skysoftlab.greenhouse.arduino.IArduino arduino;
+global ru.skysoftlab.greenhouse.common.IController arduino;
 
 rule "humidityMax_1"
   when

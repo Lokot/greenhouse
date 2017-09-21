@@ -1,6 +1,6 @@
 package ru.skysoftlab.greenhouse.quartz.jobs;
 
-import static ru.skysoftlab.greenhouse.impl.GrenHouseArduino.LOCK;
+import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
 
 import javax.inject.Inject;
 
@@ -10,7 +10,7 @@ import org.apache.openejb.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.skysoftlab.greenhouse.arduino.IArduino;
+import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 
 public class IrrigetionJob implements Job {
@@ -20,7 +20,7 @@ public class IrrigetionJob implements Job {
 	public static final String CONTUR = "irrigationCountur";
 
 	@Inject
-	private IArduino arduino;
+	private IController arduino;
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {

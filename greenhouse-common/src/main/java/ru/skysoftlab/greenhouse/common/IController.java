@@ -1,10 +1,9 @@
-package ru.skysoftlab.greenhouse.arduino;
+package ru.skysoftlab.greenhouse.common;
 
 import java.io.Serializable;
 
-import org.sintef.jarduino.DigitalPin;
-
-import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.gpio.IDigitalPin;
+import ru.skysoftlab.gpio.IGpioDevicePinsPorts;
 
 /**
  * Интерфейс взаимодействия с Arduino.
@@ -12,7 +11,7 @@ import ru.skysoftlab.greenhouse.common.GableState;
  * @author Lokot
  *
  */
-public interface IArduino extends Serializable {
+public interface IController extends IGpioDevicePinsPorts, Serializable {
 
 	public int getIllumination();
 
@@ -28,8 +27,8 @@ public interface IArduino extends Serializable {
 
 	public boolean isConnected();
 
-	public void openIrrigationCountur(DigitalPin pin);
+	public void openIrrigationCountur(IDigitalPin pin);
 
-	public void closeIrrigationCountur(DigitalPin pin);
+	public void closeIrrigationCountur(IDigitalPin pin);
 	
 }
