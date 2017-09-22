@@ -14,6 +14,7 @@ import org.joda.time.Duration;
 
 import ru.skysoftlab.gpio.DigitalPin;
 
+// TODO перекинуть в skylibs
 public class PinDbType implements UserType, Serializable {
 
 	private static final long serialVersionUID = 8008841901166096613L;

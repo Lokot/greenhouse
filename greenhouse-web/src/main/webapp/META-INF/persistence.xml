@@ -10,6 +10,8 @@
 		<class>ru.skysoftlab.greenhouse.jpa.entitys.Readout</class>
 		<class>ru.skysoftlab.greenhouse.jpa.entitys.DateConfig</class>
 		<class>ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur</class>
+		<class>ru.skysoftlab.greenhouse.jpa.entitys.drools.Rule</class>
+		<class>ru.skysoftlab.greenhouse.jpa.entitys.drools.Condition</class>
 		<!-- Пользователи. -->
 		<class>ru.skysoftlab.skylibs.security.entitys.UserEntity</class>
 		<!-- Свойства. -->

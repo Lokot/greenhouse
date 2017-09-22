@@ -261,6 +261,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
+			<artifactId>drools-templates</artifactId>
+			<version>${runtime.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
 			<artifactId>drools-compiler</artifactId>
 			<version>${runtime.version}</version>
 		</dependency>

@@ -1,0 +1,25 @@
+template header
+CONDITIONS
+GABLE_STATE
+
+package ru.skysoftlab.greenhouse
+
+import ru.skysoftlab.greenhouse.dto.GableParamsDto
+import ru.skysoftlab.greenhouse.common.GableState
+
+global java.lang.Float HUM_MAX;
+global java.lang.Float TEMP_MAX;
+global java.lang.Float TEMP_2;
+global java.lang.Float TEMP_1;
+global java.lang.Float TEMP_MIN;
+global ru.skysoftlab.greenhouse.common.IController controller;
+
+template "Gable State"
+rule "Gable State_@{row.rowNumber}"
+    
+    when
+        GableParamsDto(@{CONDITIONS})
+    then
+        controller.setGableState(GableState.valueOf("@{GABLE_STATE}"));
+end
+end template

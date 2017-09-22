@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -34,6 +36,7 @@ import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.greenhouse.jpa.entitys.DateConfig;
 import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.greenhouse.jpa.entitys.Readout;
+import ru.skysoftlab.greenhouse.jpa.entitys.drools.Rule;
 import ru.skysoftlab.skylibs.entitys.properties.api.PropertyProvider;
 
 public class DataBaseProvider implements Serializable {
@@ -203,5 +206,12 @@ public class DataBaseProvider implements Serializable {
 
 	public IrrigationCountur getIrrigationCountur(Object id) {
 		return em.find(IrrigationCountur.class, id);
+	}
+	
+	@Produces
+	public Iterator<Rule> getAllRules() {
+		TypedQuery<Rule> query = em.createNamedQuery("Rule.getAll", Rule.class);
+		List<Rule> results = query.getResultList();
+		return results.iterator();
 	}
 }

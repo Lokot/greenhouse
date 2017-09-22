@@ -42,6 +42,7 @@ public class IrrigationForm extends AbstractForm<IrrigationCountur> {
 		duration.setConverter(new DurationStringConverter());
 	}
 	
+	@Override
 	protected void configureComponents() {
 		pin = new ComboBox("Пин: ", arduino.getAvalibleDigitalPins());
 		super.configureComponents();

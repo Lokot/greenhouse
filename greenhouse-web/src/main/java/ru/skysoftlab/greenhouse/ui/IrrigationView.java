@@ -17,8 +17,10 @@ import ru.skysoftlab.greenhouse.ui.converters.DurationTextConverter;
 import ru.skysoftlab.greenhouse.ui.renderers.SwitchRenderer;
 import ru.skysoftlab.greenhouse.web.MainMenu;
 import ru.skysoftlab.greenhouse.web.Navigation;
+import ru.skysoftlab.greenhouse.web.MainMenu.ConfigMenu;
 import ru.skysoftlab.skylibs.security.RolesList;
 import ru.skysoftlab.skylibs.web.annatations.MainMenuItem;
+import ru.skysoftlab.skylibs.web.annatations.MenuItemView;
 import ru.skysoftlab.skylibs.web.ui.AbstractGridView;
 
 /**
@@ -28,7 +30,8 @@ import ru.skysoftlab.skylibs.web.ui.AbstractGridView;
  *
  */
 @CDIView(Navigation.IRRIGATION)
-@MainMenuItem(name = "Полив", order = MainMenu.IRRIGATION, hasChilds = false)
+@MainMenuItem(name = "Настройки", order = MainMenu.CONFIG)
+@MenuItemView(name = "Полив", order = ConfigMenu.IRRIGATION)
 @RolesAllowed({ RolesList.ADMIN })
 public class IrrigationView extends AbstractGridView<IrrigationCountur, IrrigationForm> {
 

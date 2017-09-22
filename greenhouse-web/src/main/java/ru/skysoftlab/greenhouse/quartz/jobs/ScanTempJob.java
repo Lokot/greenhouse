@@ -30,7 +30,7 @@ public class ScanTempJob implements Job {
 	private Logger LOG = LoggerFactory.getLogger(ScanTempJob.class);
 
 	@Inject
-	private IController arduino;
+	private IController controller;
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;
@@ -38,15 +38,15 @@ public class ScanTempJob implements Job {
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		synchronized (LOCK) {
-			if (arduino.isConnected()) {
+			if (controller.isConnected()) {
 				try {
 					LOG.info("Check params to database "
 							+ context.getJobDetail().getKey());
 					Date now = context.getScheduledFireTime();
-					Float temperature = arduino.getTemperature();
-					Float humidity = arduino.getHumidity();
-					int illumination = arduino.getIllumination();
-					GableState gableState = arduino.getGableState();
+					Float temperature = controller.getTemperature();
+					Float humidity = controller.getHumidity();
+					int illumination = controller.getIllumination();
+					GableState gableState = controller.getGableState();
 					Readout rd = new Readout(temperature, humidity, illumination, now);
 					rd.setGableState(gableState);
 					try {
