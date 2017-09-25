@@ -10,6 +10,7 @@ import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -21,10 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.skysoftlab.greenhouse.common.IController;
+import ru.skysoftlab.greenhouse.drools.KieSessionWrapperBean;
 import ru.skysoftlab.greenhouse.dto.GableParamsDto;
-import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
+import ru.skysoftlab.greenhouse.jpa.entitys.drools.Rule;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
+import ru.skysoftlab.skylibs.events.EntityChangeEvent;
+import ru.skysoftlab.skylibs.events.EntityChangeListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 
 /**
@@ -34,34 +38,30 @@ import ru.skysoftlab.skylibs.events.SystemConfigEvent;
  *
  */
 @Singleton
-public class GableJob implements Job, ConfigurationListener {
+public class GableJob implements Job, ConfigurationListener, EntityChangeListener {
 
 	private Logger LOG = LoggerFactory.getLogger(GableJob.class);
 
+	@Inject
+	@AppProperty(AUTO)
 	private Boolean auto;
-
+	
 	@Inject
 	private IController controller;
 
 	@Inject
-	private SystemConfigDto dto;
+	private Instance<KieSessionWrapperBean> carInstances;
 
-	@Inject
-	// @KSession("ksession-rules")
-	@AppProperty("META-INF/rules/GableRuleTemplate.drt")
 	private KieSession kSession;
-
-	// TODO как-то надо обновлять базу при изменении правил
 
 	@PostConstruct
 	public void init() {
-		auto = dto.getAuto();
-		kSession.setGlobal("HUM_MAX", dto.getHumMax());
-		kSession.setGlobal("TEMP_MAX", dto.getTempMax());
-		kSession.setGlobal("TEMP_2", dto.getTemp2());
-		kSession.setGlobal("TEMP_1", dto.getTemp1());
-		kSession.setGlobal("TEMP_MIN", dto.getTempMin());
-		kSession.setGlobal("controller", controller);
+		injectKieSession();
+	}
+	
+	private void injectKieSession() {
+		kSession = carInstances.get().getkSession();
+		
 	}
 
 	/*
@@ -123,6 +123,13 @@ public class GableJob implements Job, ConfigurationListener {
 		Boolean newAuto = event.getParam(AUTO);
 		if (newAuto != null && !newAuto.equals(auto)) {
 			auto = newAuto;
+		}
+	}
+
+	@Override
+	public void entityChange(@Observes EntityChangeEvent event) {
+		if (event.getEntityClass().equals(Rule.class)) {
+			injectKieSession();
 		}
 	}
 

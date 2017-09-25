@@ -2,6 +2,7 @@ package ru.skysoftlab.greenhouse.drools;
 
 import java.io.InputStream;
 
+import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
@@ -15,7 +16,7 @@ import org.kie.api.runtime.KieSession;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
 
 public class KieSessionProducer {
-	
+
 	@Inject
 	private RulsDataProvider rulsDataProvider;
 
@@ -34,10 +35,14 @@ public class KieSessionProducer {
 		return statelessKieSession;
 	}
 
+	public void closeKieSession(@Disposes KieSession kieSession) {
+		kieSession.dispose();
+	}
+
 	private String getFileName(InjectionPoint ip) {
 		return ip.getAnnotated().getAnnotation(AppProperty.class).value();
 	}
-	
+
 	private InputStream getTemplate(InjectionPoint ip) {
 		return getClass().getClassLoader().getResourceAsStream(getFileName(ip));
 	}

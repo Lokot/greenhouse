@@ -121,7 +121,8 @@ var options = {
 	    }],
 	    
 	    tooltip: {
-	        shared: true
+	        shared: true,
+	        headerFormat: '<b>{point.key}</b><br>'
 	    },
 	    
 //	    legend: {

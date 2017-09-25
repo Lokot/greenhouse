@@ -69,6 +69,7 @@ public class AnaliseTemperatureChart extends AbstractChartBean {
 		}
 
 		try {
+			// TODO через CDI
 			URL url = Resources.getResource("charts/analiseChart.js");
 			String options = Resources.toString(url, Charsets.UTF_8);
 			options = options.replaceAll("CHART_TITLE", title);
@@ -92,13 +93,13 @@ public class AnaliseTemperatureChart extends AbstractChartBean {
 	}
 
 	private String getTimeNomberData(int time, float val) {
-		return "[" + getValueName(time) + "," + val + "]";
+		return "['" + getValueName(time) + "'," + val + "]";
 	}
 
 	public String getValueName(Integer monthOrDay) {
 		switch (type) {
 		case Month:
-			return "Число: " + monthOrDay;
+			return monthOrDay + " " + new SimpleDateFormat("MMM").format(date);
 
 		case Year:
 		default:

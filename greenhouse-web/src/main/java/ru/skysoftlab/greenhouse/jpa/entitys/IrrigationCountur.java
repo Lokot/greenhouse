@@ -12,9 +12,9 @@ import org.hibernate.annotations.TypeDefs;
 import org.joda.time.Duration;
 
 import ru.skysoftlab.gpio.DigitalPin;
-import ru.skysoftlab.greenhouse.jpa.PinDbType;
 import ru.skysoftlab.skylibs.common.EditableEntity;
 import ru.skysoftlab.skylibs.joda.types.DurationUserType;
+import ru.skysoftlab.skylibs.types.PinDbType;
 
 /**
  * Поливочный контур.

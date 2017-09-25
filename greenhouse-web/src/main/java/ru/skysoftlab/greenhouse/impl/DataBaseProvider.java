@@ -31,6 +31,7 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.skysoftlab.gpio.IDigitalPin;
 import ru.skysoftlab.greenhouse.dto.ReadOutDto;
 import ru.skysoftlab.greenhouse.dto.SystemConfigDto;
 import ru.skysoftlab.greenhouse.jpa.entitys.DateConfig;
@@ -131,10 +132,8 @@ public class DataBaseProvider implements Serializable {
 		int month = c.get(Calendar.MONTH);
 		Query query = em.createNamedQuery("Readout.monthByDays");
 		query.setParameter(1, new GregorianCalendar(year, month, 1, 0, 0).getTime());
-		query.setParameter(
-				2,
-				new GregorianCalendar(year, month, c.getActualMaximum(Calendar.DAY_OF_MONTH), c
-						.getActualMaximum(Calendar.HOUR_OF_DAY), 59, 59).getTime());
+		query.setParameter(2, new GregorianCalendar(year, month, c.getActualMaximum(Calendar.DAY_OF_MONTH),
+				c.getActualMaximum(Calendar.HOUR_OF_DAY), 59, 59).getTime());
 		List<Object[]> resultList = query.getResultList();
 		List<ReadOutDto> results = new ArrayList<>();
 		for (Object[] obj : resultList) {
@@ -207,11 +206,19 @@ public class DataBaseProvider implements Serializable {
 	public IrrigationCountur getIrrigationCountur(Object id) {
 		return em.find(IrrigationCountur.class, id);
 	}
-	
+
 	@Produces
 	public Iterator<Rule> getAllRules() {
 		TypedQuery<Rule> query = em.createNamedQuery("Rule.getAll", Rule.class);
 		List<Rule> results = query.getResultList();
 		return results.iterator();
+	}
+
+	public List<IDigitalPin> getIrrigationPins() {
+		List<IDigitalPin> rv = new ArrayList<>();
+		for (IrrigationCountur countur : getIrigationCounters()) {
+			rv.add(countur.getPin());
+		}
+		return rv;
 	}
 }

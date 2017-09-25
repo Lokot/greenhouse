@@ -9,17 +9,16 @@ import ru.skysoftlab.gpio.ISensor;
 import ru.skysoftlab.gpio.ISensorParam;
 import ru.skysoftlab.gpio.PinMode;
 
+// TODO Реализовать
 public class CubietruckConverter implements IConverter<Pin, Object, Pin, Object, Object> {
 
 	@Override
 	public Pin convertPin(IPin p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object convertPinMode(PinMode p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -30,13 +29,11 @@ public class CubietruckConverter implements IConverter<Pin, Object, Pin, Object,
 
 	@Override
 	public Object convertSensor(ISensor sensor) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object convertSensorParametr(ISensor sensor, ISensorParam param) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

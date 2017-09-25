@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import ru.skysoftlab.gpio.IDigitalPin;
 import ru.skysoftlab.gpio.IGpioDevicePinsPorts;
+import ru.skysoftlab.gpio.cdi.DeviceConnectedEvent;
 
 /**
  * Интерфейс взаимодействия с Arduino.
@@ -11,24 +12,20 @@ import ru.skysoftlab.gpio.IGpioDevicePinsPorts;
  * @author Lokot
  *
  */
-public interface IController extends IGpioDevicePinsPorts, Serializable {
+public interface IController extends IGableController, IGpioDevicePinsPorts, Serializable {
 
 	public int getIllumination();
 
 	public Float getTemperature();
 
 	public Float getHumidity();
-	
-	public GableState getGableState();
-	
-	public boolean isGableMoved();
-	
-	public void setGableState(GableState gableState);
 
 	public boolean isConnected();
 
 	public void openIrrigationCountur(IDigitalPin pin);
 
 	public void closeIrrigationCountur(IDigitalPin pin);
+	
+	public void deviceConnectedEvent(DeviceConnectedEvent event);
 	
 }

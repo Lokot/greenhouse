@@ -9,6 +9,7 @@ import java.util.Collection;
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.sintef.jarduino.DigitalPin;
 import org.sintef.jarduino.DigitalState;
@@ -25,6 +26,7 @@ import ru.skysoftlab.gpio.IPin;
 import ru.skysoftlab.gpio.ISensor;
 import ru.skysoftlab.gpio.ISensorParam;
 import ru.skysoftlab.gpio.PinMode;
+import ru.skysoftlab.gpio.cdi.AbstractGpioDevice;
 import ru.skysoftlab.greenhouse.arduino.converter.ArduinoConverter;
 import ru.skysoftlab.greenhouse.common.GableStateListener;
 import ru.skysoftlab.greenhouse.common.IGableGpioDevice;
@@ -32,12 +34,13 @@ import ru.skysoftlab.skylibs.annatations.AppProperty;
 import ru.skysoftlab.skylibs.events.ConfigurationListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 
-public class ArduinoDevice implements IGableGpioDevice, ConfigurationListener {
+@Singleton
+public class ArduinoDevice extends AbstractGpioDevice implements IGableGpioDevice, ConfigurationListener {
 
 	private Logger LOG = LoggerFactory.getLogger(ArduinoDevice.class);
 
 	private final DigitalState LOW = DigitalState.LOW, HIGH = DigitalState.HIGH;
-
+	
 	@Inject
 	@AppProperty(SERIAL_PORT)
 	private String portName;
@@ -49,16 +52,18 @@ public class ArduinoDevice implements IGableGpioDevice, ConfigurationListener {
 	@PostConstruct
 	private void init() {
 		try {
+			// TODO сделать продюсер (перегружать)
 			arduino = new GrenHouseArduino(portName);
 		} catch (Exception e) {
 			LOG.error("Контроллер не найден на порту " + portName);
 			if (arduino != null) {
+				// TODO есть непонятный косяк с зависанием закрытия порта
 				arduino.close();
 			}
 			arduino = null;
 		}
 	}
-
+	
 	@Override
 	public void close() throws IOException {
 		if (arduino == null)
@@ -82,7 +87,7 @@ public class ArduinoDevice implements IGableGpioDevice, ConfigurationListener {
 				arduino.close();
 			}
 			init();
-			// TODO возможно надо кидать event об переустановке PinMode
+			fireDeviceConnectedEvent();
 		}
 	}
 

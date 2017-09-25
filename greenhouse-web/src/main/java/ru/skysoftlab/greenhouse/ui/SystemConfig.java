@@ -1,5 +1,7 @@
 package ru.skysoftlab.greenhouse.ui;
 
+import static ru.skysoftlab.skylibs.web.ui.VaadinUtils.comboboxReadOnly;
+
 import java.util.Locale;
 
 import javax.annotation.security.RolesAllowed;
@@ -93,6 +95,7 @@ public class SystemConfig extends BaseMenuView implements Button.ClickListener, 
 		// illumMin.setWidth("300px");
 		serialPort.removeAllItems();
 		serialPort.addItems(controller.getCommPorts());
+		comboboxReadOnly(serialPort);
 		auto.removeAllItems();
 		auto.addItems(new VaadinItemDto(true, "Автоматическое"), new VaadinItemDto(false, "Ручное"));
 		auto.setConverter(new CustomAutoGableConverter());

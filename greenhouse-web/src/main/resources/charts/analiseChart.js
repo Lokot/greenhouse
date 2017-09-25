@@ -30,13 +30,9 @@ var options = {
 		},
 		
 		xAxis: [{
-			type: 'datetime',
-		    dateTimeLabelFormats: {
-		        month: '%e. %b',
-		        year: '%b'
-		    },
-		    title: {
-		        text: 'Время'
+			type: 'category',
+			title: {
+		        text: 'Дата'
 		    }
 		}],
 		yAxis: [{ 
@@ -81,32 +77,12 @@ var options = {
 		        style: {
 		            color: Highcharts.getOptions().colors[1]
 		        }
-		    },
-			plotBands: [{ // Ночь
-				from: 0,
-				to: 550,
-				color: 'rgba(68, 170, 213, 0.1)',
-				label: {
-					text: 'Ночь',
-					style: {
-						color: '#606060'
-					}
-				}
-			}, { // День
-				from: 550,
-				to: 1000,
-				color: 'rgba(0, 0, 0, 0)',
-				label: {
-					text: 'День',
-					style: {
-						color: '#606060'
-					}
-				}
-			}]
+		    }
 		}],
 		
 		tooltip: {
-		    shared: true
+		    shared: true,
+		    headerFormat: '<b>{point.key}</b><br>'
 		},
 		
 		series: [

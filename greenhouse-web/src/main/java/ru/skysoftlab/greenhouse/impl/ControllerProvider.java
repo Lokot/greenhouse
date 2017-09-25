@@ -15,10 +15,12 @@ import static ru.skysoftlab.greenhouse.impl.ControllerPins.stopSignal;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,18 +33,21 @@ import ru.skysoftlab.gpio.DigitalPin;
 import ru.skysoftlab.gpio.GpioException;
 import ru.skysoftlab.gpio.IAnalogPin;
 import ru.skysoftlab.gpio.IDigitalPin;
+import ru.skysoftlab.gpio.cdi.DeviceConnectedEvent;
+import ru.skysoftlab.gpio.sensors.Dht22Params;
+import ru.skysoftlab.gpio.sensors.Sensor;
 import ru.skysoftlab.greenhouse.common.GableMoveEvent;
 import ru.skysoftlab.greenhouse.common.GableState;
 import ru.skysoftlab.greenhouse.common.GableStateListener;
 import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.common.IGableGpioDevice;
-import ru.skysoftlab.greenhouse.gpio.Dht22Params;
-import ru.skysoftlab.greenhouse.gpio.Sensor;
+import ru.skysoftlab.greenhouse.jpa.entitys.IrrigationCountur;
 import ru.skysoftlab.skylibs.annatations.AppPropertyFile;
+import ru.skysoftlab.skylibs.events.EntityChangeEvent;
+import ru.skysoftlab.skylibs.events.EntityChangeListener;
 
 @Singleton
-// @Startup
-public class ControllerProvider implements IController, GableStateListener {
+public class ControllerProvider implements IController, GableStateListener, EntityChangeListener {
 
 	private static final long serialVersionUID = -3174953105876049988L;
 
@@ -63,10 +68,29 @@ public class ControllerProvider implements IController, GableStateListener {
 	@AppPropertyFile("pins.properties")
 	private Properties pins = new Properties();
 
+	@Inject
+	private DataBaseProvider baseProvider;
+
 	@PostConstruct
-	private void init() {
+	public void init() {
 		gpioDevice.setGableStateListener(this);
 		try {
+			initStaticPins();
+			initDynamicPins();
+		} catch (Exception e) {
+			LOG.error("Controller ERROR !!!!!", e);
+			closeDevice();
+		}
+	}
+	
+	@Override
+	public void deviceConnectedEvent(@Observes DeviceConnectedEvent event) {
+		init();
+	}
+
+	private void initStaticPins() {
+		try {
+			// TODO есть непонятный косяк с зависанием при отсылке данных в serialPort
 			gpioDevice.setPinMode(getAnalogPin(illumPin), INPUT);
 			gpioDevice.setPinMode(getDigitalPin(stateOpen), INPUT);
 			gpioDevice.setPinMode(getDigitalPin(state60), INPUT);
@@ -75,12 +99,22 @@ public class ControllerProvider implements IController, GableStateListener {
 			gpioDevice.setPinMode(getDigitalPin(openSignal), OUTPUT);
 			gpioDevice.setPinMode(getDigitalPin(stopSignal), OUTPUT);
 			gpioDevice.setPinMode(getDigitalPin(closeSignal), OUTPUT);
-			// TODO инициализация пинов для полива
 		} catch (GpioException e) {
 			LOG.error("Error set pin mode ", e);
-		} catch (Exception e) {
-			LOG.error("Controller ERROR !!!!!", e);
-			closeDevice();
+		}
+	}
+
+	/**
+	 * Инициализирует пинов для полива.
+	 */
+	private void initDynamicPins() {
+		List<IDigitalPin> irrPins = baseProvider.getIrrigationPins();
+		for (IDigitalPin iDigitalPin : irrPins) {
+			try {
+				gpioDevice.setPinMode(iDigitalPin, OUTPUT);
+			} catch (GpioException e) {
+				LOG.error("Error set pin (" + iDigitalPin.getName() + ") mode", e);
+			}
 		}
 	}
 
@@ -237,18 +271,23 @@ public class ControllerProvider implements IController, GableStateListener {
 	 */
 	@Override
 	public void setGableState(GableState newGableState) {
-		newGbState = newGableState;
 		int compare = newGableState.compareTo(getGableState());
-		if (compare > 0) {
-			sendOpenSignal();
-			LOG.info("Gable opens to " + newGableState.getStringState());
-		} else if (compare < 0) {
-			sendCloseSignal();
-			LOG.info("Gable close to " + newGableState.getStringState());
+		if (compare == 0) {
+			// соответствует текущему состоянию
+			newGbState = null;
 		} else {
-			// текущее состояние соответствует
+			newGbState = newGableState;
+			if (compare > 0) {
+				sendOpenSignal();
+				LOG.info("Gable opens to " + newGableState.getStringState());
+			} else if (compare < 0) {
+				sendCloseSignal();
+				LOG.info("Gable close to " + newGableState.getStringState());
+			}
 		}
 	}
+
+	// TODO надо засинхронизировать функции setGableState и gableStateIs
 
 	/*
 	 * (non-Javadoc)
@@ -270,7 +309,23 @@ public class ControllerProvider implements IController, GableStateListener {
 				isCalibrateMode = false;
 			}
 		}
+		// fire event to ru.skysoftlab.greenhouse.ui.components.GableStateSelector
 		gableMoveEvent.fire(new GableMoveEvent(gableState));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#isGableMoved()
+	 */
+	@Override
+	public boolean isGableMoved() {
+		if (gbState != null) {
+			if (newGbState == null)
+				return isCalibrateMode;
+			return !gbState.equals(newGbState) || isCalibrateMode;
+		}
+		return true;
 	}
 
 	private void sendStopSignal() {
@@ -351,21 +406,18 @@ public class ControllerProvider implements IController, GableStateListener {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ru.skysoftlab.greenhouse.arduino.IArduino#isGableMoved()
+	 * @see ru.skysoftlab.gpio.IGpioDevicePinsPorts#getAvalibleDigitalPins()
 	 */
-	@Override
-	public boolean isGableMoved() {
-		if (gbState != null) {
-			return !gbState.equals(newGbState) || isCalibrateMode;
-		}
-		return true;
-	}
-
 	@Override
 	public Collection<IDigitalPin> getAvalibleDigitalPins() {
 		return gpioDevice.getAvalibleDigitalPins();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ru.skysoftlab.gpio.IGpioDevicePinsPorts#getCommPorts()
+	 */
 	@Override
 	public Collection<String> getCommPorts() {
 		return gpioDevice.getCommPorts();
@@ -377,6 +429,33 @@ public class ControllerProvider implements IController, GableStateListener {
 
 	private IAnalogPin getAnalogPin(String pName) {
 		return new AnalogPin(pins.getProperty(pName));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * ru.skysoftlab.skylibs.events.EntityChangeListener#entityChange(ru.skysoftlab.
+	 * skylibs.events.EntityChangeEvent)
+	 */
+	@Override
+	public void entityChange(@Observes EntityChangeEvent event) {
+		if (event.getEntityClass().equals(IrrigationCountur.class)) {
+			switch (event.getState()) {
+			case NEW:
+			case UPDATE:
+				IrrigationCountur countur = baseProvider.getIrrigationCountur(event.getId());
+				try {
+					gpioDevice.setPinMode(countur.getPin(), OUTPUT);
+				} catch (GpioException e) {
+					LOG.error("Error set pin (" + countur.getPin().getName() + ") mode ", e);
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
 	}
 
 }

@@ -33,12 +33,18 @@ public class ArduinoConverter implements
 
 	@Override
 	public JArduinoSensor convertSensor(ISensor sensor) {
-		return JSensor.map.get(sensor.getValue());
+		switch (sensor.getValue()) {
+		case 0:
+			return JSensor.DHT22;
+
+		default:
+			return null;
+		}
 	}
 
 	@Override
 	public JArduinoSensorParametr convertSensorParametr(ISensor sensor, ISensorParam param) {
-		JArduinoSensor s = JSensor.map.get(sensor.getValue());
+		JArduinoSensor s = convertSensor(sensor);
 		for (JArduinoSensorParametr p : s.getParams()) {
 			if(p.getValue() == param.getValue()) {
 				return p;
