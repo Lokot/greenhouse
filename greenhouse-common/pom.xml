@@ -14,5 +14,16 @@
 			<artifactId>skylibs-gpio</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>ru.skysoftlab.skylibs</groupId>
+			<artifactId>skylibs-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>6.0</version>
+            <scope>provided</scope>
+		</dependency>
 	</dependencies>
 </project>

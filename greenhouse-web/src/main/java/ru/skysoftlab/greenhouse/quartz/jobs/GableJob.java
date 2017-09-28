@@ -50,7 +50,7 @@ public class GableJob implements Job, ConfigurationListener, EntityChangeListene
 	private IController controller;
 
 	@Inject
-	private Instance<KieSessionWrapperBean> carInstances;
+	private Instance<KieSessionWrapperBean> kiesInstances;
 
 	private KieSession kSession;
 
@@ -60,8 +60,7 @@ public class GableJob implements Job, ConfigurationListener, EntityChangeListene
 	}
 	
 	private void injectKieSession() {
-		kSession = carInstances.get().getkSession();
-		
+		kSession = kiesInstances.get().getkSession();
 	}
 
 	/*

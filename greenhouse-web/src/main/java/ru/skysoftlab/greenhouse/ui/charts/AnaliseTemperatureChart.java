@@ -1,7 +1,5 @@
 package ru.skysoftlab.greenhouse.ui.charts;
 
-import java.io.IOException;
-import java.net.URL;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,12 +7,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-
-import ru.skysoftlab.greenhouse.common.AbstractChartBean;
 import ru.skysoftlab.greenhouse.dto.ReadOutDto;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
+import ru.skysoftlab.skylibs.annatations.ResourcePropetry;
+import ru.skysoftlab.skylibs.web.ui.highcharts.AbstractChartBean;
 
 /**
  * График анализа показателей за месяц или год.
@@ -26,20 +22,24 @@ public class AnaliseTemperatureChart extends AbstractChartBean {
 
 	private static final long serialVersionUID = -7850512294106721583L;
 
-	@Inject
-	private DataBaseProvider dataBaseProvider;
-
 	private Date date = new Date();
 
 	private AnaliseChartType type = AnaliseChartType.Year;
 
+	@Inject
+	private DataBaseProvider dataBaseProvider;
+
+	@Inject
+	@ResourcePropetry("charts/analiseChart.js")
+	private String chartOptions;
+
 	@Override
 	protected String getOptions() {
-
+		String rv = chartOptions;
 		StringBuilder illum = new StringBuilder(), temp = new StringBuilder(), hum = new StringBuilder();
 		String title, subtitle;
 		List<ReadOutDto> readouts = null;
-		
+
 		switch (type) {
 		case Month:
 			title = "Показатели за месяц";
@@ -68,20 +68,12 @@ public class AnaliseTemperatureChart extends AbstractChartBean {
 			count++;
 		}
 
-		try {
-			// TODO через CDI
-			URL url = Resources.getResource("charts/analiseChart.js");
-			String options = Resources.toString(url, Charsets.UTF_8);
-			options = options.replaceAll("CHART_TITLE", title);
-			options = options.replaceAll("CHART_SUBTITLE", subtitle);
-			options = options.replaceAll("TEMP", temp.toString());
-			options = options.replaceAll("HUM", hum.toString());
-			options = options.replaceAll("ILLUM", illum.toString());
-			return options;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		}
+		rv = rv.replaceAll("CHART_TITLE", title);
+		rv = rv.replaceAll("CHART_SUBTITLE", subtitle);
+		rv = rv.replaceAll("TEMP", temp.toString());
+		rv = rv.replaceAll("HUM", hum.toString());
+		rv = rv.replaceAll("ILLUM", illum.toString());
+		return rv;
 	}
 
 	public void setDate(Date date) {

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +23,15 @@ import ru.skysoftlab.gpio.IPin;
 import ru.skysoftlab.gpio.ISensor;
 import ru.skysoftlab.gpio.ISensorParam;
 import ru.skysoftlab.gpio.PinMode;
-import ru.skysoftlab.gpio.cdi.AbstractGpioDevice;
-import ru.skysoftlab.greenhouse.common.GableStateListener;
-import ru.skysoftlab.greenhouse.common.IGableGpioDevice;
+import ru.skysoftlab.greenhouse.common.AbstractGableGpioDevice;
+import ru.skysoftlab.greenhouse.common.GableState;
 import ru.skysoftlab.greenhouse.cubietruck.converter.CubietruckConverter;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
-import ru.skysoftlab.skylibs.events.ConfigurationListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 
 //TODO Реализовать
-public class CubietruckDevice extends AbstractGpioDevice implements IGableGpioDevice, ConfigurationListener {
+@Singleton
+public class CubietruckDevice extends AbstractGableGpioDevice {
 
 	private Logger LOG = LoggerFactory.getLogger(CubietruckDevice.class);
 
@@ -41,7 +42,8 @@ public class CubietruckDevice extends AbstractGpioDevice implements IGableGpioDe
 	
 	private Cubietruck cubietruck = Cubietruck.getInstance();
 
-	private CubietruckConverter converter = new CubietruckConverter();
+	@Inject
+	private CubietruckConverter converter;
 
 	@PostConstruct
 	private void init() {
@@ -100,11 +102,7 @@ public class CubietruckDevice extends AbstractGpioDevice implements IGableGpioDe
 	}
 
 	@Override
-	public void configUpdated(SystemConfigEvent event) {
-	}
-
-	@Override
-	public void setGableStateListener(GableStateListener listener) {
+	public void configUpdated(@Observes SystemConfigEvent event) {
 	}
 
 }

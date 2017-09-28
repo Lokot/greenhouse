@@ -1,7 +1,5 @@
 package ru.skysoftlab.greenhouse.ui.charts;
 
-import java.io.IOException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -11,12 +9,10 @@ import javax.inject.Inject;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
 
-import ru.skysoftlab.greenhouse.common.AbstractChartBean;
 import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
 import ru.skysoftlab.greenhouse.jpa.entitys.Readout;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import ru.skysoftlab.skylibs.annatations.ResourcePropetry;
+import ru.skysoftlab.skylibs.web.ui.highcharts.AbstractChartBean;
 
 /**
  * График показателей за сутки.
@@ -30,6 +26,10 @@ public class TemperatureChart extends AbstractChartBean {
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;
+
+	@Inject
+	@ResourcePropetry("charts/mainTempChart.js")
+	private String chartOptions;
 
 	private Date date = new Date();
 
@@ -69,24 +69,17 @@ public class TemperatureChart extends AbstractChartBean {
 			count++;
 		}
 
-		try {
-			URL url = Resources.getResource("charts/mainTempChart.js");
-			String options = Resources.toString(url, Charsets.UTF_8).replaceAll("DATE",
-					new SimpleDateFormat("dd MMM YYYY").format(date));
-			options = options.replaceAll("TEMP_SER", tempSer.toString());
-			options = options.replaceAll("TEMP_MAX", tempMax.toString());
-			options = options.replaceAll("TEMP_2", temp2.toString());
-			options = options.replaceAll("TEMP_1", temp1.toString());
-			options = options.replaceAll("TEMP_MIN", tempMin.toString());
-			options = options.replaceAll("HUM_SER", humSer.toString());
-			options = options.replaceAll("HUM_MAX", humMax.toString());
-			options = options.replaceAll("ILLUM_SER", illumSer.toString());
-			options = options.replaceAll("GABLE_SER", gableSer.toString());
-			return options;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		}
+		String options = chartOptions.replaceAll("DATE", new SimpleDateFormat("dd MMM YYYY").format(date));
+		options = options.replaceAll("TEMP_SER", tempSer.toString());
+		options = options.replaceAll("TEMP_MAX", tempMax.toString());
+		options = options.replaceAll("TEMP_2", temp2.toString());
+		options = options.replaceAll("TEMP_1", temp1.toString());
+		options = options.replaceAll("TEMP_MIN", tempMin.toString());
+		options = options.replaceAll("HUM_SER", humSer.toString());
+		options = options.replaceAll("HUM_MAX", humMax.toString());
+		options = options.replaceAll("ILLUM_SER", illumSer.toString());
+		options = options.replaceAll("GABLE_SER", gableSer.toString());
+		return options;
 	}
 
 	private String getTimeNomberData(LocalTime time, float val) {

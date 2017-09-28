@@ -38,6 +38,7 @@ import ru.skysoftlab.gpio.sensors.Dht22Params;
 import ru.skysoftlab.gpio.sensors.Sensor;
 import ru.skysoftlab.greenhouse.common.GableMoveEvent;
 import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.greenhouse.common.GableStateEvent;
 import ru.skysoftlab.greenhouse.common.GableStateListener;
 import ru.skysoftlab.greenhouse.common.IController;
 import ru.skysoftlab.greenhouse.common.IGableGpioDevice;
@@ -73,7 +74,7 @@ public class ControllerProvider implements IController, GableStateListener, Enti
 
 	@PostConstruct
 	public void init() {
-		gpioDevice.setGableStateListener(this);
+//		gpioDevice.setGableStateListener(this);
 		try {
 			initStaticPins();
 			initDynamicPins();
@@ -139,7 +140,7 @@ public class ControllerProvider implements IController, GableStateListener, Enti
 	 * @return
 	 */
 	private float round(float number, int scale) {
-		int pow = 10;
+		int pow = 10; 
 		for (int i = 1; i < scale; i++)
 			pow *= 10;
 		float tmp = number * pow;
@@ -456,6 +457,10 @@ public class ControllerProvider implements IController, GableStateListener, Enti
 				break;
 			}
 		}
+	}
+	
+	public void gableStateChange(@Observes GableStateEvent event) {
+		gableStateIs(event.getState());
 	}
 
 }

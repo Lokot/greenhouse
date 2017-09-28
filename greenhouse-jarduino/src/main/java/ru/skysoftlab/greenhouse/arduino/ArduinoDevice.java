@@ -26,16 +26,13 @@ import ru.skysoftlab.gpio.IPin;
 import ru.skysoftlab.gpio.ISensor;
 import ru.skysoftlab.gpio.ISensorParam;
 import ru.skysoftlab.gpio.PinMode;
-import ru.skysoftlab.gpio.cdi.AbstractGpioDevice;
 import ru.skysoftlab.greenhouse.arduino.converter.ArduinoConverter;
-import ru.skysoftlab.greenhouse.common.GableStateListener;
-import ru.skysoftlab.greenhouse.common.IGableGpioDevice;
+import ru.skysoftlab.greenhouse.common.AbstractGableGpioDevice;
 import ru.skysoftlab.skylibs.annatations.AppProperty;
-import ru.skysoftlab.skylibs.events.ConfigurationListener;
 import ru.skysoftlab.skylibs.events.SystemConfigEvent;
 
 @Singleton
-public class ArduinoDevice extends AbstractGpioDevice implements IGableGpioDevice, ConfigurationListener {
+public class ArduinoDevice extends AbstractGableGpioDevice {
 
 	private Logger LOG = LoggerFactory.getLogger(ArduinoDevice.class);
 
@@ -44,16 +41,16 @@ public class ArduinoDevice extends AbstractGpioDevice implements IGableGpioDevic
 	@Inject
 	@AppProperty(SERIAL_PORT)
 	private String portName;
-
-	private ArduinoConverter converter = new ArduinoConverter();
+	
+	@Inject
+	private ArduinoConverter converter;
 
 	private GrenHouseArduino arduino;
 
 	@PostConstruct
 	private void init() {
 		try {
-			// TODO сделать продюсер (перегружать)
-			arduino = new GrenHouseArduino(portName);
+			arduino = new GrenHouseArduino(portName, this);
 		} catch (Exception e) {
 			LOG.error("Контроллер не найден на порту " + portName);
 			if (arduino != null) {
@@ -175,13 +172,6 @@ public class ArduinoDevice extends AbstractGpioDevice implements IGableGpioDevic
 			rv.add(port.getSystemPortName());
 		}
 		return rv;
-	}
-
-	@Override
-	public void setGableStateListener(GableStateListener listener) {
-		if (arduino == null)
-			return;
-		arduino.setGableStateListener(listener);
 	}
 
 }
