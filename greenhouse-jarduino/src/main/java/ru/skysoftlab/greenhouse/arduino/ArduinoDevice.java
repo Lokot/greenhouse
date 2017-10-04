@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import org.sintef.jarduino.DigitalPin;
 import org.sintef.jarduino.DigitalState;
 import org.sintef.jarduino.InvalidPinTypeException;
+import org.sintef.jarduino.JArduinoConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,14 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 
 	private Logger LOG = LoggerFactory.getLogger(ArduinoDevice.class);
 
+	private final Object LOCK = new Object();
+
 	private final DigitalState LOW = DigitalState.LOW, HIGH = DigitalState.HIGH;
-	
+
 	@Inject
 	@AppProperty(SERIAL_PORT)
 	private String portName;
-	
+
 	@Inject
 	private ArduinoConverter converter;
 
@@ -51,16 +54,15 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 	private void init() {
 		try {
 			arduino = new GrenHouseArduino(portName, this);
-		} catch (Exception e) {
+		} catch (JArduinoConnectionException e) {
 			LOG.error("Контроллер не найден на порту " + portName);
 			if (arduino != null) {
-				// TODO есть непонятный косяк с зависанием закрытия порта
 				arduino.close();
 			}
 			arduino = null;
 		}
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		if (arduino == null)
@@ -80,10 +82,12 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 		String newSerialPortName = event.getParam(SERIAL_PORT);
 		if (newSerialPortName != null && newSerialPortName.length() > 0 && !newSerialPortName.equals(portName)) {
 			portName = newSerialPortName;
-			if (arduino != null) {
-				arduino.close();
+			synchronized (LOCK) {
+				if (arduino != null) {
+					arduino.close();
+				}
+				init();
 			}
-			init();
 			fireDeviceConnectedEvent();
 		}
 	}
@@ -93,7 +97,9 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 		if (arduino == null)
 			return;
 		try {
-			arduino.pinMode(converter.convertPin(pin), converter.convertPinMode(pinMode));
+			synchronized (LOCK) {
+				arduino.pinMode(converter.convertPin(pin), converter.convertPinMode(pinMode));
+			}
 		} catch (InvalidPinTypeException e) {
 			throw new GpioException("Error set " + pin + " in mode " + pinMode, e);
 		}
@@ -104,7 +110,9 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 		if (arduino == null)
 			return -1;
 		try {
-			return arduino.analogRead(converter.convertPin(pin));
+			synchronized (LOCK) {
+				return arduino.analogRead(converter.convertPin(pin));
+			}
 		} catch (InvalidPinTypeException e) {
 			throw new GpioException("Error read anolog pin: " + pin, e);
 		}
@@ -115,8 +123,10 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 		if (arduino == null)
 			return "";
 		try {
-			return arduino.sensorRead(converter.convertPin(pin), converter.convertSensor(sensor),
-					converter.convertSensorParametr(sensor, sParam), delay);
+			synchronized (LOCK) {
+				return arduino.sensorRead(converter.convertPin(pin), converter.convertSensor(sensor),
+						converter.convertSensorParametr(sensor, sParam), delay);
+			}
 		} catch (InvalidPinTypeException e) {
 			throw new GpioException("Error read sensor: " + pin, e);
 		}
@@ -127,7 +137,9 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 		if (arduino == null)
 			return false;
 		try {
-			return arduino.digitalRead(converter.convertPin(pin)).getValue() > 0;
+			synchronized (LOCK) {
+				return arduino.digitalRead(converter.convertPin(pin)).getValue() > 0;
+			}
 		} catch (InvalidPinTypeException e) {
 			throw new GpioException("Error read digital pin: " + pin, e);
 		}
@@ -138,7 +150,9 @@ public class ArduinoDevice extends AbstractGableGpioDevice {
 		if (arduino == null)
 			return;
 		try {
-			arduino.digitalWrite(converter.convertPin(pin), state ? HIGH : LOW);
+			synchronized (LOCK) {
+				arduino.digitalWrite(converter.convertPin(pin), state ? HIGH : LOW);
+			}
 		} catch (InvalidPinTypeException e) {
 			throw new GpioException("Error write to digital pin: " + pin, e);
 		}

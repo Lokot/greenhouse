@@ -13,14 +13,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import ru.skysoftlab.greenhouse.common.GableMoveEvent;
-import ru.skysoftlab.greenhouse.common.GableState;
-import ru.skysoftlab.greenhouse.common.IController;
-import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
-import ru.skysoftlab.skylibs.annatations.AppProperty;
-import ru.skysoftlab.skylibs.events.SystemConfigEvent;
-import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
@@ -31,6 +23,14 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.OptionGroup;
+
+import ru.skysoftlab.greenhouse.common.GableMoveEvent;
+import ru.skysoftlab.greenhouse.common.GableState;
+import ru.skysoftlab.greenhouse.common.IController;
+import ru.skysoftlab.greenhouse.impl.DataBaseProvider;
+import ru.skysoftlab.skylibs.annatations.AppProperty;
+import ru.skysoftlab.skylibs.events.SystemConfigEvent;
+import ru.skysoftlab.skylibs.web.dto.VaadinItemDto;
 
 /**
  * Компонент управления коньком.
@@ -43,7 +43,7 @@ public class GableStateSelector extends GridLayout {
 	private static final long serialVersionUID = -5570816315675931244L;
 
 	@Inject
-	private IController arduino;
+	private IController controller;
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;
@@ -110,7 +110,7 @@ public class GableStateSelector extends GridLayout {
 		});
 		// состояния
 		statesCombo.addItems(close, open30, open60, open);
-		setStateOfGable(arduino.getGableState());
+		setStateOfGable(controller.getGableState());
 
 		changeButton.addClickListener(new ClickListener() {
 
@@ -119,7 +119,7 @@ public class GableStateSelector extends GridLayout {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// НАСТРОЙКИ РЕЖИМА РАБОТЫ
-				arduino.setGableState(((VaadinItemDto) statesCombo.getValue())
+				controller.setGableState(((VaadinItemDto) statesCombo.getValue())
 						.<GableState> getObj());
 				Notification.show("Настройки конька изменены:",
 						String.valueOf(statesCombo.getValue()),

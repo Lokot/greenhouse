@@ -8,6 +8,7 @@ import static ru.skysoftlab.greenhouse.common.GableState.Open;
 import org.sintef.jarduino.DigitalPin;
 import org.sintef.jarduino.DigitalState;
 import org.sintef.jarduino.InvalidPinTypeException;
+import org.sintef.jarduino.JArduinoConnectionException;
 import org.sintef.jarduino.JArduinoDSensors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +21,11 @@ public class GrenHouseArduino extends JArduinoDSensors {
 
 	private GableStateListener gableStateListener;
 
-	public GrenHouseArduino(String id) {
+	public GrenHouseArduino(String id) throws JArduinoConnectionException {
 		super(id);
 	}
 
-	public GrenHouseArduino(String id, GableStateListener gableStateListener) {
+	public GrenHouseArduino(String id, GableStateListener gableStateListener) throws JArduinoConnectionException {
 		super(id);
 		this.gableStateListener = gableStateListener;
 	}

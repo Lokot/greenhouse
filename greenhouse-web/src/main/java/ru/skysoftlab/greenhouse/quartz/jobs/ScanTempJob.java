@@ -1,7 +1,5 @@
 package ru.skysoftlab.greenhouse.quartz.jobs;
 
-import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
-
 import java.util.Date;
 
 import javax.inject.Inject;
@@ -34,10 +32,9 @@ public class ScanTempJob implements Job {
 
 	@Inject
 	private DataBaseProvider dataBaseProvider;
-
+	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		synchronized (LOCK) {
 			if (controller.isConnected()) {
 				try {
 					LOG.info("Check params to database "
@@ -58,6 +55,5 @@ public class ScanTempJob implements Job {
 					LOG.error("Arduino not reporting:", e);
 				}
 			}
-		}
 	}
 }

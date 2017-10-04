@@ -6,7 +6,6 @@ import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_1;
 import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_2;
 import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MAX;
 import static ru.skysoftlab.greenhouse.common.ConfigurationNames.TEMP_MIN;
-import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
@@ -48,7 +47,7 @@ public class GableJob implements Job, ConfigurationListener, EntityChangeListene
 	
 	@Inject
 	private IController controller;
-
+	
 	@Inject
 	private Instance<KieSessionWrapperBean> kiesInstances;
 
@@ -71,7 +70,6 @@ public class GableJob implements Job, ConfigurationListener, EntityChangeListene
 	 */
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		synchronized (LOCK) {
 			LOG.info("Check params to gable " + context.getJobDetail().getKey());
 			if (auto && controller.isConnected() && !controller.isGableMoved()) {
 				try {
@@ -88,7 +86,6 @@ public class GableJob implements Job, ConfigurationListener, EntityChangeListene
 			} else {
 				LOG.info("Gable Manual Mode or gable moved or controller not connected");
 			}
-		}
 	}
 
 	/*

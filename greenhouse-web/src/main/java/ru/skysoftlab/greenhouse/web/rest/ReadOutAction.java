@@ -25,7 +25,7 @@ public class ReadOutAction implements UniversalAction {
 
 	@Inject
 	private IController controller;
-
+	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
 		String act = request.getParameter(ACT);

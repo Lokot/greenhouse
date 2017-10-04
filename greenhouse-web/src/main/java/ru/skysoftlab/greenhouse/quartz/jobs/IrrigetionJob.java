@@ -1,7 +1,5 @@
 package ru.skysoftlab.greenhouse.quartz.jobs;
 
-import static ru.skysoftlab.greenhouse.impl.ControllerProvider.LOCK;
-
 import javax.inject.Inject;
 
 import org.apache.openejb.quartz.Job;
@@ -26,18 +24,14 @@ public class IrrigetionJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		IrrigationCountur irrigationCountur = (IrrigationCountur) context.getJobDetail().getJobDataMap().get(CONTUR);
 		LOG.info("Open irrigation countur - " + irrigationCountur.getName());
-		synchronized (LOCK) {
-			arduino.openIrrigationCountur(irrigationCountur.getPin());
-		}
+		arduino.openIrrigationCountur(irrigationCountur.getPin());
 		try {
 			Thread.sleep(irrigationCountur.getDuration().getMillis());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		LOG.info("Close irrigation countur - " + irrigationCountur.getName());
-		synchronized (LOCK) {
-			arduino.closeIrrigationCountur(irrigationCountur.getPin());
-		}
+		arduino.closeIrrigationCountur(irrigationCountur.getPin());
 	}
 
 }
